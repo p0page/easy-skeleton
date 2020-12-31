@@ -145,18 +145,22 @@ export const insertSkeleton = (path, skeletonImageBase64) => {
     <script class="${skeletonClass}">
     void function() {
       var skeletonMap = ${skeletonMap};
-      if (skeletonMap[window.location.hash]) {
-        var node = document.getElementsByClassName('${skeletonContainerClass}')[0];
-        node && node.style.setProperty('background-image', 'url("' + skeletonMap[window.location.hash] + '")', 'important');
+      try {
+        if (skeletonMap[window.location.hash]) {
+          var node = document.getElementsByClassName('${skeletonContainerClass}')[0];
+          node && node.style.setProperty('background-image', 'url("' + skeletonMap[window.location.hash] + '")', 'important');
+        }
+        window.addEventListener('load', function(){
+          setTimeout(function(){
+            var removes = document.body.getElementsByClassName('${skeletonClass}');
+            removes && Array.prototype.map.call(removes, function(v){ return v; }).forEach(function(item){
+              document.body.removeChild(item);
+            });
+          }, 0);
+        });
+      } catch (e) {
+        console.error(e);
       }
-      window.addEventListener('load', function(){
-        setTimeout(function(){
-          var removes = document.body.getElementsByClassName('${skeletonClass}');
-          removes && Array.prototype.map.call(removes, function(v){ return v; }).forEach(function(item){
-            document.body.removeChild(item);
-          });
-        }, 0);
-      });
     }()
     </script>
   `;
