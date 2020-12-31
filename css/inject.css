@@ -1,0 +1,143 @@
+/* .button-group .sk-button {
+  border: 1px solid #DDD;
+} */
+
+.button-group {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 999999;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 8px;
+  backdrop-filter: blur(5px);
+  background-color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  /* margin: 1em 0px 0.5em 1em; */
+  list-style: none;
+  padding: 0px;
+  border-radius: 2em;
+}
+
+.button-group .sk-button {
+  height: 32px;
+  width: 32px;
+  margin: 2px 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.button-group .sk-button:active {
+  background-color: rgb(240, 240, 240);
+}
+
+/* .button-group .sk-button+.sk-button {
+  border-left: 0 none;
+} */
+
+.icon-close {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  transform: scale(0.8);
+  width: 22px;
+  height: 22px;
+  border: 2px solid transparent;
+  border-radius: 40px
+}
+.icon-close::after,
+.icon-close::before {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  width: 16px;
+  height: 2px;
+  background: currentColor;
+  transform: rotate(45deg);
+  border-radius: 5px;
+  top: 8px;
+  left: 1px
+}
+.icon-close::after {
+  transform: rotate(-45deg)
+}
+
+.icon-check {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  transform: scale(1);
+  width: 22px;
+  height: 22px;
+  border: 2px solid transparent;
+  border-radius: 100px
+}
+.icon-check::after {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  left: 3px;
+  top: -1px;
+  width: 6px;
+  height: 10px;
+  border-width: 0 2px 2px 0;
+  border-style: solid;
+  transform-origin: bottom left;
+  transform: rotate(45deg)
+}
+
+.icon-eye {
+  position: relative;
+  display: block;
+  transform: scale(0.7);
+  width: 24px;
+  height: 18px;
+  border-bottom-right-radius: 100px;
+  border-bottom-left-radius: 100px;
+  overflow: hidden;
+  box-sizing: border-box
+}
+.icon-eye::after,
+.icon-eye::before {
+  content: "";
+  display: block;
+  border-radius: 100px;
+  position: absolute;
+  box-sizing: border-box
+}
+.icon-eye::after {
+  top: 2px;
+  box-shadow:
+      inset 0 -8px 0 2px,
+      inset 0 0 0 2px;
+  width: 24px;
+  height: 24px
+}
+.icon-eye::before {
+  width: 8px;
+  height: 8px;
+  border: 2px solid;
+  bottom: 4px;
+  left: 8px
+}
+.icon-eye_ban i::after {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  width: 26px;
+  height: 2px;
+  background: currentColor;
+  transform: rotate(45deg);
+  border-radius: 5px;
+  top: 10px;
+  left: 0px
+}
