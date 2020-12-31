@@ -127,6 +127,7 @@ const EasySkeleton = {
     });
     this.submitBtn.addEventListener('click', async () => {
       removeElement(container);
+      this.toggleView(true);
       const imgBase64 = await this.captureScreen();
       // const res = await this.upload(imgBase64);
       // const imgUrl = res && res.data && res.data.url;
