@@ -705,11 +705,11 @@
           removeElement(container);
           this.toggleView(true);
           const imgBase64 = await this.captureScreen();
-          const res = await this.request({
-            url: window.location.href,
-            responseType: 'text',
-          });
-          console.log(res);
+          // const res = await this.request({
+          //   url: window.location.href,
+          //   responseType: 'text',
+          // });
+          // console.log(res);
           // const res = await this.upload(imgBase64);
           // const imgUrl = res && res.data && res.data.url;
           const { html } = insertSkeleton(window.location.hash, imgBase64);
