@@ -1,0 +1,58 @@
+{{SKELETON_MAP}}
+<style>
+      @keyframes flush {
+        0% {
+          left: -100%;
+        }
+        50% {
+          left: 0;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+    </style>
+    <div class="{{SKELETON_CLASS}}" style="
+      animation: flush 2s linear infinite;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 9999;
+      background: linear-gradient(to left,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, .85) 50%,
+        rgba(255, 255, 255, 0) 100%);
+    "></div>
+    <div class="{{SKELETON_CLASS}} {{SKELETON_CONTAINER_CLASS}}" style="
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9998;
+      background-repeat: no-repeat !important;
+      background-size: 100% auto !important;
+      background-color: #FFFFFF !important;
+      background-position: center 0 !important;
+    "></div>
+    <script class="{{SKELETON_CLASS}}">
+    void function() {
+      try {
+        if (window.__skeletonMap[window.location.hash]) {
+          var node = document.getElementsByClassName('{{SKELETON_CONTAINER_CLASS}}')[0];
+          node && node.style.setProperty('background-image', 'url("' + window.__skeletonMap[window.location.hash] + '")', 'important');
+        }
+        window.__removeSkeleton = function() {
+          setTimeout(function(){
+            var removes = document.body.getElementsByClassName('{{SKELETON_CLASS}}');
+            removes && Array.prototype.map.call(removes, function(v){ return v; }).forEach(function(item){
+              document.body.removeChild(item);
+            });
+          }, 0);
+        };
+      } catch (e) {
+        console.error(e);
+      }
+    }()
+    </script>

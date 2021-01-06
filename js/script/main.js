@@ -41,13 +41,11 @@ const EasySkeleton = {
     });
   },
 
-  upload(img) {
+  request(options) {
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage({
-        command: 'UPLOAD',
-        data: {
-          img,
-        },
+        command: 'REQUEST',
+        options,
       }, (res) => {
         resolve(res);
       });
@@ -129,9 +127,13 @@ const EasySkeleton = {
       removeElement(container);
       this.toggleView(true);
       const imgBase64 = await this.captureScreen();
+      // const res = await this.request({
+      //   url: window.location.href,
+      //   responseType: 'text',
+      // });
+      // console.log(res);
       // const res = await this.upload(imgBase64);
       // const imgUrl = res && res.data && res.data.url;
-      console.log(imgBase64);
       const { html } = insertSkeleton(window.location.hash, imgBase64);
       this.toggleView(false);
       clipboard.writeText(html).then(() => {

@@ -1,3 +1,5 @@
+import template from './template.html';
+
 // sleep function
 export const sleep = ms => {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -99,71 +101,16 @@ export const insertSkeleton = (path, skeletonImageBase64) => {
     return false;
   }
 
-  const skeletonMap = `{\n${JSON.stringify(path)}: ${JSON.stringify(skeletonImageBase64)},\n}`;
 
   const skeletonClass = 'skeleton-remove-after-first-request';
-  const skeletonContainerClass = 'skeleton-container'
+  const skeletonContainerClass = 'skeleton-container';
+  const skeletonMap = `<script class="${skeletonClass}">\nwindow.__skeletonMap = {\n${JSON.stringify(path)}: ${JSON.stringify(skeletonImageBase64)},\n}\n</script>\n`;
 
-  const content = `
-    <style>
-      @keyframes flush {
-        0% {
-          left: -100%;
-        }
-        50% {
-          left: 0;
-        }
-        100% {
-          left: 100%;
-        }
-      }
-    </style>
-    <div class="${skeletonClass}" style="
-      animation: flush 2s linear infinite;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 100%;
-      z-index: 9999;
-      background: linear-gradient(to left,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, .85) 50%,
-        rgba(255, 255, 255, 0) 100%);
-    "></div>
-    <div class="${skeletonClass} ${skeletonContainerClass}" style="
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 9998;
-      background-repeat: no-repeat !important;
-      background-size: 100% auto !important;
-      background-color: #FFFFFF !important;
-      background-position: center 0 !important;
-    "></div>
-    <script class="${skeletonClass}">
-    void function() {
-      var skeletonMap = ${skeletonMap};
-      try {
-        if (skeletonMap[window.location.hash]) {
-          var node = document.getElementsByClassName('${skeletonContainerClass}')[0];
-          node && node.style.setProperty('background-image', 'url("' + skeletonMap[window.location.hash] + '")', 'important');
-        }
-        window.addEventListener('load', function(){
-          setTimeout(function(){
-            var removes = document.body.getElementsByClassName('${skeletonClass}');
-            removes && Array.prototype.map.call(removes, function(v){ return v; }).forEach(function(item){
-              document.body.removeChild(item);
-            });
-          }, 0);
-        });
-      } catch (e) {
-        console.error(e);
-      }
-    }()
-    </script>
-  `;
+
+  const content = `<!-- SKELETON -->\n${template}\n<!-- SKELETON -->`
+    .replace(/\{\{SKELETON_CLASS\}\}/g, skeletonClass)
+    .replace(/\{\{SKELETON_CONTAINER_CLASS\}\}/g, skeletonContainerClass)
+    .replace(/\{\{SKELETON_MAP\}\}/g, skeletonMap);
 
   return {
     html: content,
