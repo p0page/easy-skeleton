@@ -55,10 +55,6 @@
 
       try {
         var pathname = urlParser(window.location.hash).pathname;
-        if (window.__skeletonMap[pathname]) {
-          var node = document.getElementsByClassName('{{SKELETON_CONTAINER_CLASS}}')[0];
-          node && node.style.setProperty('background-image', 'url("' + window.__skeletonMap[pathname] + '")', 'important');
-        }
         window.__removeSkeleton = function() {
           setTimeout(function(){
             var removes = document.body.getElementsByClassName('{{SKELETON_CLASS}}');
@@ -67,6 +63,12 @@
             });
           }, 0);
         };
+        if (window.__skeletonMap[pathname]) {
+          var node = document.getElementsByClassName('{{SKELETON_CONTAINER_CLASS}}')[0];
+          node && node.style.setProperty('background-image', 'url("' + window.__skeletonMap[pathname] + '")', 'important');
+        } else {
+          window.__removeSkeleton();
+        }
       } catch (e) {
         console.error(e);
       }

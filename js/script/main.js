@@ -6,6 +6,8 @@ import {
   createElement,
   replaceElement,
   insertSkeleton,
+  getSkeletonInjectContent,
+  getSkeletonMap,
 } from './util';
 import {
   SKELETON_TEXT_CLASS,
@@ -54,6 +56,11 @@ const EasySkeleton = {
 
   // Entry function
   async genSkeleton(options) {
+    if (this.previewNode) {
+      alert('已有骨架屏正在生成中');
+      return;
+    }
+
     this.initData();
     this.options = options;
     if (options.debug) {
@@ -127,14 +134,14 @@ const EasySkeleton = {
       removeElement(container);
       this.toggleView(true);
       const imgBase64 = await this.captureScreen();
-      // const res = await this.request({
-      //   url: window.location.href,
-      //   responseType: 'text',
-      // });
-      // console.log(res);
-      // const res = await this.upload(imgBase64);
-      // const imgUrl = res && res.data && res.data.url;
-      const { html } = insertSkeleton(window.location.hash, imgBase64);
+      const originalHtml = await this.request({
+        url: window.location.href,
+        responseType: 'text',
+      });
+      const injectContent = getSkeletonInjectContent(originalHtml);
+      const originalSkeletonMap = getSkeletonMap(injectContent);
+  
+      const { html } = insertSkeleton(window.location.hash, imgBase64, originalSkeletonMap);
       this.toggleView(false);
       clipboard.writeText(html).then(() => {
         alert('骨架屏代码已经复制到了你的剪贴板！')

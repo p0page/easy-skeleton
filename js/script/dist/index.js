@@ -1,7 +1,35 @@
 (function () {
     'use strict';
 
-    var template = "{{SKELETON_MAP}}<style>@keyframes flush{0%{left:-100%}50%{left:0}100%{left:100%}}</style><div class=\"{{SKELETON_CLASS}}\" style=\"animation:flush 2s linear infinite;position:absolute;top:0;bottom:0;width:100%;z-index:9999;background:linear-gradient(to left,rgba(255,255,255,0) 0,rgba(255,255,255,.85) 50%,rgba(255,255,255,0) 100%)\"></div><div class=\"{{SKELETON_CLASS}} {{SKELETON_CONTAINER_CLASS}}\" style=\"position:absolute;top:0;left:0;right:0;bottom:0;z-index:9998;background-repeat:no-repeat!important;background-size:100% auto!important;background-color:#fff!important;background-position:center 0!important\"></div><script class=\"{{SKELETON_CLASS}}\">!function(){try{e=((e=window.location.hash)&&(o=/^#?(\\/[^\\?\\s]*)(\\?[^\\s]*)?$/.exec(e))?{pathname:o[1],search:o[2]||\"\"}:{pathname:\"/\",search:\"\"}).pathname;!window.__skeletonMap[e]||(o=document.getElementsByClassName(\"{{SKELETON_CONTAINER_CLASS}}\")[0])&&o.style.setProperty(\"background-image\",'url(\"'+window.__skeletonMap[e]+'\")',\"important\"),window.__removeSkeleton=function(){setTimeout(function(){var e=document.body.getElementsByClassName(\"{{SKELETON_CLASS}}\");e&&Array.prototype.map.call(e,function(e){return e}).forEach(function(e){document.body.removeChild(e)})},0)}}catch(e){console.error(e)}var e,o}()</script>";
+    var template = "{{SKELETON_MAP}}<style>@keyframes flush{0%{left:-100%}50%{left:0}100%{left:100%}}</style><div class=\"{{SKELETON_CLASS}}\" style=\"animation:flush 2s linear infinite;position:absolute;top:0;bottom:0;width:100%;z-index:9999;background:linear-gradient(to left,rgba(255,255,255,0) 0,rgba(255,255,255,.85) 50%,rgba(255,255,255,0) 100%)\"></div><div class=\"{{SKELETON_CLASS}} {{SKELETON_CONTAINER_CLASS}}\" style=\"position:absolute;top:0;left:0;right:0;bottom:0;z-index:9998;background-repeat:no-repeat!important;background-size:100% auto!important;background-color:#fff!important;background-position:center 0!important\"></div><script class=\"{{SKELETON_CLASS}}\">!function(){try{e=((e=window.location.hash)&&(o=/^#?(\\/[^\\?\\s]*)(\\?[^\\s]*)?$/.exec(e))?{pathname:o[1],search:o[2]||\"\"}:{pathname:\"/\",search:\"\"}).pathname;window.__removeSkeleton=function(){setTimeout(function(){var e=document.body.getElementsByClassName(\"{{SKELETON_CLASS}}\");e&&Array.prototype.map.call(e,function(e){return e}).forEach(function(e){document.body.removeChild(e)})},0)},window.__skeletonMap[e]?(o=document.getElementsByClassName(\"{{SKELETON_CONTAINER_CLASS}}\")[0])&&o.style.setProperty(\"background-image\",'url(\"'+window.__skeletonMap[e]+'\")',\"important\"):window.__removeSkeleton()}catch(e){console.error(e)}var e,o}()</script>";
+
+    // Skeleton main color
+    const MAIN_COLOR = '#EEEEEE';
+    const MAIN_COLOR_RGB = 'rgb(238, 238, 238)';
+
+    // Pseudo-class style
+    const PSEUDO_CLASS = 'sk-pseudo';
+
+    // button style
+    const BUTTON_CLASS = 'sk-button';
+
+    // Transparent style
+    const TRANSPARENT_CLASS = 'sk-transparent';
+
+    // Transparent 1 pixel image
+    const SMALLEST_BASE64 = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+    // text class
+    const SKELETON_TEXT_CLASS = 'skeleton-text-block-mark';
+
+    // List item Tag
+    const LIST_ITEM_TAG = [ 'LI', 'DT', 'DD' ];
+
+    const SKELETON_DIVIDER = '<!-- SKELETON -->';
+    const SKELETON_CLASS = 'skeleton-remove-after-first-request';
+    const SKELETON_CONTAINER_CLASS = 'skeleton-container';
+    const SKELETON_MAP_PREFIX = `<script class="${SKELETON_CLASS}">\nwindow.__skeletonMap = `;
+    const SKELETON_MAP_SUFFIX = `</script>`;
 
     // sleep function
     const sleep = ms => {
@@ -100,63 +128,65 @@
 
     const urlParser = (url) => {
       const pathPattern = /^#?(\/[^\?\s]*)(\?[^\s]*)?$/;
-      let temp;
-      if (!url || !(temp = pathPattern.exec(url))) {
+      let tmp;
+      if (!url || !(tmp = pathPattern.exec(url))) {
         return {
           pathname: '/',
           search: '',
         };
       }
       return {
-        pathname: temp[1],
-        search: temp[2] || '',
+        pathname: tmp[1],
+        search: tmp[2] || '',
       };
     };
 
-    const insertSkeleton = (url, skeletonImageBase64) => {
+    const getSkeletonInjectContent = (val) => {
+      if (!val || typeof val !== 'string') return '';
+
+      const tmp = val.split(SKELETON_DIVIDER);
+
+      return tmp.length === 3 ? tmp[1] : '';
+    };
+
+    const getSkeletonMap = (val) => {
+      if (!val || typeof val !== 'string') return '';
+
+      const regExp = new RegExp(`${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[^\\f\\t\\v]*\\})\\s*${SKELETON_MAP_SUFFIX}`);
+
+      let tmp;
+      let res = {};
+
+      try {
+        if (tmp = regExp.exec(val)) res = JSON.parse(tmp[1]);
+      } catch {
+        return {};
+      }
+      return res;
+    };
+
+    const insertSkeleton = (url, skeletonImageBase64, originalSkeletonMap = {}) => {
       if (!skeletonImageBase64) {
         console.warn('The skeleton has not been generated yet');
         return false;
       }
 
       const { pathname } = urlParser(url);
+      const skeletonMap = {
+        ...originalSkeletonMap,
+        [pathname]: skeletonImageBase64,
+      };
 
-      const skeletonClass = 'skeleton-remove-after-first-request';
-      const skeletonContainerClass = 'skeleton-container';
-      const skeletonMap = `<script class="${skeletonClass}">\nwindow.__skeletonMap = {\n${JSON.stringify(pathname)}: ${JSON.stringify(skeletonImageBase64)},\n}\n</script>\n`;
-
-      const content = `<!-- SKELETON -->\n${template}\n<!-- SKELETON -->`
-        .replace(/\{\{SKELETON_CLASS\}\}/g, skeletonClass)
-        .replace(/\{\{SKELETON_CONTAINER_CLASS\}\}/g, skeletonContainerClass)
-        .replace(/\{\{SKELETON_MAP\}\}/g, skeletonMap);
+      const content = `${SKELETON_DIVIDER}\n${template}\n${SKELETON_DIVIDER}`
+        .replace(/\{\{SKELETON_CLASS\}\}/g, SKELETON_CLASS)
+        .replace(/\{\{SKELETON_CONTAINER_CLASS\}\}/g, SKELETON_CONTAINER_CLASS)
+        .replace(/\{\{SKELETON_MAP\}\}/g, `${SKELETON_MAP_PREFIX}${JSON.stringify(skeletonMap, null, 2)}\n${SKELETON_MAP_SUFFIX}\n`);
 
       return {
         html: content,
         img: skeletonImageBase64,
       };
     };
-
-    // Skeleton main color
-    const MAIN_COLOR = '#EEEEEE';
-    const MAIN_COLOR_RGB = 'rgb(238, 238, 238)';
-
-    // Pseudo-class style
-    const PSEUDO_CLASS = 'sk-pseudo';
-
-    // button style
-    const BUTTON_CLASS = 'sk-button';
-
-    // Transparent style
-    const TRANSPARENT_CLASS = 'sk-transparent';
-
-    // Transparent 1 pixel image
-    const SMALLEST_BASE64 = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
-    // text class
-    const SKELETON_TEXT_CLASS = 'skeleton-text-block-mark';
-
-    // List item Tag
-    const LIST_ITEM_TAG = [ 'LI', 'DT', 'DD' ];
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation.
@@ -647,6 +677,11 @@
 
       // Entry function
       async genSkeleton(options) {
+        if (this.previewNode) {
+          alert('已有骨架屏正在生成中');
+          return;
+        }
+
         this.initData();
         this.options = options;
         if (options.debug) {
@@ -720,14 +755,14 @@
           removeElement(container);
           this.toggleView(true);
           const imgBase64 = await this.captureScreen();
-          // const res = await this.request({
-          //   url: window.location.href,
-          //   responseType: 'text',
-          // });
-          // console.log(res);
-          // const res = await this.upload(imgBase64);
-          // const imgUrl = res && res.data && res.data.url;
-          const { html } = insertSkeleton(window.location.hash, imgBase64);
+          const originalHtml = await this.request({
+            url: window.location.href,
+            responseType: 'text',
+          });
+          const injectContent = getSkeletonInjectContent(originalHtml);
+          const originalSkeletonMap = getSkeletonMap(injectContent);
+      
+          const { html } = insertSkeleton(window.location.hash, imgBase64, originalSkeletonMap);
           this.toggleView(false);
           C(html).then(() => {
             alert('骨架屏代码已经复制到了你的剪贴板！');

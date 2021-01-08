@@ -19,3 +19,9 @@ export const SKELETON_TEXT_CLASS = 'skeleton-text-block-mark';
 
 // List item Tag
 export const LIST_ITEM_TAG = [ 'LI', 'DT', 'DD' ];
+
+export const SKELETON_DIVIDER = '<!-- SKELETON -->';
+export const SKELETON_CLASS = 'skeleton-remove-after-first-request';
+export const SKELETON_CONTAINER_CLASS = 'skeleton-container';
+export const SKELETON_MAP_PREFIX = `<script class="${SKELETON_CLASS}">\nwindow.__skeletonMap = `;
+export const SKELETON_MAP_SUFFIX = `</script>`;

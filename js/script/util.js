@@ -1,4 +1,11 @@
 import template from './template.html';
+import {
+  SKELETON_DIVIDER,
+  SKELETON_CLASS,
+  SKELETON_CONTAINER_CLASS,
+  SKELETON_MAP_PREFIX,
+  SKELETON_MAP_SUFFIX,
+} from './constants';
 
 // sleep function
 export const sleep = ms => {
@@ -97,35 +104,59 @@ export const checkHasPseudoEle = ele => {
 
 export const urlParser = (url) => {
   const pathPattern = /^#?(\/[^\?\s]*)(\?[^\s]*)?$/;
-  let temp;
-  if (!url || !(temp = pathPattern.exec(url))) {
+  let tmp;
+  if (!url || !(tmp = pathPattern.exec(url))) {
     return {
       pathname: '/',
       search: '',
     };
   }
   return {
-    pathname: temp[1],
-    search: temp[2] || '',
+    pathname: tmp[1],
+    search: tmp[2] || '',
   };
 };
 
-export const insertSkeleton = (url, skeletonImageBase64) => {
+export const getSkeletonInjectContent = (val) => {
+  if (!val || typeof val !== 'string') return '';
+
+  const tmp = val.split(SKELETON_DIVIDER);
+
+  return tmp.length === 3 ? tmp[1] : '';
+};
+
+export const getSkeletonMap = (val) => {
+  if (!val || typeof val !== 'string') return '';
+
+  const regExp = new RegExp(`${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[^\\f\\t\\v]*\\})\\s*${SKELETON_MAP_SUFFIX}`);
+
+  let tmp;
+  let res = {};
+
+  try {
+    if (tmp = regExp.exec(val)) res = JSON.parse(tmp[1]);
+  } catch {
+    return {};
+  }
+  return res;
+};
+
+export const insertSkeleton = (url, skeletonImageBase64, originalSkeletonMap = {}) => {
   if (!skeletonImageBase64) {
     console.warn('The skeleton has not been generated yet');
     return false;
   }
 
   const { pathname } = urlParser(url);
+  const skeletonMap = {
+    ...originalSkeletonMap,
+    [pathname]: skeletonImageBase64,
+  }
 
-  const skeletonClass = 'skeleton-remove-after-first-request';
-  const skeletonContainerClass = 'skeleton-container';
-  const skeletonMap = `<script class="${skeletonClass}">\nwindow.__skeletonMap = {\n${JSON.stringify(pathname)}: ${JSON.stringify(skeletonImageBase64)},\n}\n</script>\n`;
-
-  const content = `<!-- SKELETON -->\n${template}\n<!-- SKELETON -->`
-    .replace(/\{\{SKELETON_CLASS\}\}/g, skeletonClass)
-    .replace(/\{\{SKELETON_CONTAINER_CLASS\}\}/g, skeletonContainerClass)
-    .replace(/\{\{SKELETON_MAP\}\}/g, skeletonMap);
+  const content = `${SKELETON_DIVIDER}\n${template}\n${SKELETON_DIVIDER}`
+    .replace(/\{\{SKELETON_CLASS\}\}/g, SKELETON_CLASS)
+    .replace(/\{\{SKELETON_CONTAINER_CLASS\}\}/g, SKELETON_CONTAINER_CLASS)
+    .replace(/\{\{SKELETON_MAP\}\}/g, `${SKELETON_MAP_PREFIX}${JSON.stringify(skeletonMap, null, 2)}\n${SKELETON_MAP_SUFFIX}\n`);
 
   return {
     html: content,
