@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var template = "{{SKELETON_MAP}}<style>@keyframes flush{0%{left:-100%}50%{left:0}100%{left:100%}}</style><div class=\"{{SKELETON_CLASS}}\" style=\"animation:flush 2s linear infinite;position:absolute;top:0;bottom:0;width:100%;z-index:9999;background:linear-gradient(to left,rgba(255,255,255,0) 0,rgba(255,255,255,.85) 50%,rgba(255,255,255,0) 100%)\"></div><div class=\"{{SKELETON_CLASS}} {{SKELETON_CONTAINER_CLASS}}\" style=\"position:absolute;top:0;left:0;right:0;bottom:0;z-index:9998;background-repeat:no-repeat!important;background-size:100% auto!important;background-color:#fff!important;background-position:center 0!important\"></div><script class=\"{{SKELETON_CLASS}}\">!function(){try{var o;!window.__skeletonMap[window.location.hash]||(o=document.getElementsByClassName(\"{{SKELETON_CONTAINER_CLASS}}\")[0])&&o.style.setProperty(\"background-image\",'url(\"'+window.__skeletonMap[window.location.hash]+'\")',\"important\"),window.__removeSkeleton=function(){setTimeout(function(){var o=document.body.getElementsByClassName(\"{{SKELETON_CLASS}}\");o&&Array.prototype.map.call(o,function(o){return o}).forEach(function(o){document.body.removeChild(o)})},0)}}catch(o){console.error(o)}}()</script>";
+    var template = "{{SKELETON_MAP}}<style>@keyframes flush{0%{left:-100%}50%{left:0}100%{left:100%}}</style><div class=\"{{SKELETON_CLASS}}\" style=\"animation:flush 2s linear infinite;position:absolute;top:0;bottom:0;width:100%;z-index:9999;background:linear-gradient(to left,rgba(255,255,255,0) 0,rgba(255,255,255,.85) 50%,rgba(255,255,255,0) 100%)\"></div><div class=\"{{SKELETON_CLASS}} {{SKELETON_CONTAINER_CLASS}}\" style=\"position:absolute;top:0;left:0;right:0;bottom:0;z-index:9998;background-repeat:no-repeat!important;background-size:100% auto!important;background-color:#fff!important;background-position:center 0!important\"></div><script class=\"{{SKELETON_CLASS}}\">!function(){try{e=((e=window.location.hash)&&(o=/^#?(\\/[^\\?\\s]*)(\\?[^\\s]*)?$/.exec(e))?{pathname:o[1],search:o[2]||\"\"}:{pathname:\"/\",search:\"\"}).pathname;!window.__skeletonMap[e]||(o=document.getElementsByClassName(\"{{SKELETON_CONTAINER_CLASS}}\")[0])&&o.style.setProperty(\"background-image\",'url(\"'+window.__skeletonMap[e]+'\")',\"important\"),window.__removeSkeleton=function(){setTimeout(function(){var e=document.body.getElementsByClassName(\"{{SKELETON_CLASS}}\");e&&Array.prototype.map.call(e,function(e){return e}).forEach(function(e){document.body.removeChild(e)})},0)}}catch(e){console.error(e)}var e,o}()</script>";
 
     // sleep function
     const sleep = ms => {
@@ -98,17 +98,32 @@
       return false;
     };
 
-    const insertSkeleton = (path, skeletonImageBase64) => {
-      if (!path || !skeletonImageBase64) {
+    const urlParser = (url) => {
+      const pathPattern = /^#?(\/[^\?\s]*)(\?[^\s]*)?$/;
+      let temp;
+      if (!url || !(temp = pathPattern.exec(url))) {
+        return {
+          pathname: '/',
+          search: '',
+        };
+      }
+      return {
+        pathname: temp[1],
+        search: temp[2] || '',
+      };
+    };
+
+    const insertSkeleton = (url, skeletonImageBase64) => {
+      if (!skeletonImageBase64) {
         console.warn('The skeleton has not been generated yet');
         return false;
       }
 
+      const { pathname } = urlParser(url);
 
       const skeletonClass = 'skeleton-remove-after-first-request';
       const skeletonContainerClass = 'skeleton-container';
-      const skeletonMap = `<script class="${skeletonClass}">\nwindow.__skeletonMap = {\n${JSON.stringify(path)}: ${JSON.stringify(skeletonImageBase64)},\n}\n</script>\n`;
-
+      const skeletonMap = `<script class="${skeletonClass}">\nwindow.__skeletonMap = {\n${JSON.stringify(pathname)}: ${JSON.stringify(skeletonImageBase64)},\n}\n</script>\n`;
 
       const content = `<!-- SKELETON -->\n${template}\n<!-- SKELETON -->`
         .replace(/\{\{SKELETON_CLASS\}\}/g, skeletonClass)

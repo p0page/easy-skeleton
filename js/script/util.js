@@ -71,7 +71,7 @@ export const createElement = (tagName, attrs = {}) => {
     node.setAttribute(key, attrs[key]);
   });
   return node;
-}
+};
 
 // Check the element pseudo-class to return the corresponding element and width
 export const checkHasPseudoEle = ele => {
@@ -95,17 +95,32 @@ export const checkHasPseudoEle = ele => {
   return false;
 };
 
-export const insertSkeleton = (path, skeletonImageBase64) => {
-  if (!path || !skeletonImageBase64) {
+export const urlParser = (url) => {
+  const pathPattern = /^#?(\/[^\?\s]*)(\?[^\s]*)?$/;
+  let temp;
+  if (!url || !(temp = pathPattern.exec(url))) {
+    return {
+      pathname: '/',
+      search: '',
+    };
+  }
+  return {
+    pathname: temp[1],
+    search: temp[2] || '',
+  };
+};
+
+export const insertSkeleton = (url, skeletonImageBase64) => {
+  if (!skeletonImageBase64) {
     console.warn('The skeleton has not been generated yet');
     return false;
   }
 
+  const { pathname } = urlParser(url);
 
   const skeletonClass = 'skeleton-remove-after-first-request';
   const skeletonContainerClass = 'skeleton-container';
-  const skeletonMap = `<script class="${skeletonClass}">\nwindow.__skeletonMap = {\n${JSON.stringify(path)}: ${JSON.stringify(skeletonImageBase64)},\n}\n</script>\n`;
-
+  const skeletonMap = `<script class="${skeletonClass}">\nwindow.__skeletonMap = {\n${JSON.stringify(pathname)}: ${JSON.stringify(skeletonImageBase64)},\n}\n</script>\n`;
 
   const content = `<!-- SKELETON -->\n${template}\n<!-- SKELETON -->`
     .replace(/\{\{SKELETON_CLASS\}\}/g, skeletonClass)

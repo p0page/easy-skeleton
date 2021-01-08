@@ -38,10 +38,26 @@
     "></div>
     <script class="{{SKELETON_CLASS}}">
     void function() {
+      function urlParser(url) {
+        var pathPattern = /^#?(\/[^\?\s]*)(\?[^\s]*)?$/;
+        var temp;
+        if (!url || !(temp = pathPattern.exec(url))) {
+          return {
+            pathname: '/',
+            search: '',
+          };
+        }
+        return {
+          pathname: temp[1],
+          search: temp[2] || '',
+        };
+      }
+
       try {
-        if (window.__skeletonMap[window.location.hash]) {
+        var pathname = urlParser(window.location.hash).pathname;
+        if (window.__skeletonMap[pathname]) {
           var node = document.getElementsByClassName('{{SKELETON_CONTAINER_CLASS}}')[0];
-          node && node.style.setProperty('background-image', 'url("' + window.__skeletonMap[window.location.hash] + '")', 'important');
+          node && node.style.setProperty('background-image', 'url("' + window.__skeletonMap[pathname] + '")', 'important');
         }
         window.__removeSkeleton = function() {
           setTimeout(function(){
