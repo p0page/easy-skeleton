@@ -1,4 +1,4 @@
-import template from './template.html';
+import skeletonTemplate from './template/skeleton.html';
 import {
   SKELETON_DIVIDER,
   SKELETON_CLASS,
@@ -102,6 +102,20 @@ export const checkHasPseudoEle = ele => {
   return false;
 };
 
+export const request = ({
+  url,
+  data,
+  method = 'GET',
+  headers = {},
+  responseType = 'json',
+  ...rest
+}) => fetch(url, {
+  ...rest,
+  method,
+  headers: { 'Content-Type': 'application/json', ...headers },
+  body: data && JSON.stringify(data),
+}).then(res => ['json', 'text', 'formData', 'blob', 'arrayBuffer'].includes(responseType) ? res[responseType]() : res.text());
+
 export const urlParser = (url) => {
   const pathPattern = /^#?(\/[^\?\s]*)(\?[^\s]*)?$/;
   let tmp;
@@ -117,18 +131,35 @@ export const urlParser = (url) => {
   };
 };
 
+export const skeletonRegExp = new RegExp(`${SKELETON_DIVIDER}([\\s\\S]*)${SKELETON_DIVIDER}`);
+
 export const getSkeletonInjectContent = (val) => {
   if (!val || typeof val !== 'string') return '';
 
-  const tmp = val.split(SKELETON_DIVIDER);
+  const tmp = skeletonRegExp.exec(val);
 
-  return tmp.length === 3 ? tmp[1] : '';
+  return tmp ? tmp[1] : '';
 };
+
+// export const injectContentToBody = (html, injectData) => {
+//   if (!html || !injectData || typeof html !== 'string') throw new Error('传入参数不合法');
+
+//   html = html.replace(skeletonRegExp, '');
+  
+//   const doc = new DOMParser().parseFromString(html, 'text/html');
+//   const bodyDoc = doc.querySelector('body');
+//   console.log(doc);
+
+//   if (!bodyDoc) throw new Error('传入代码不包含body');
+
+//   bodyDoc.innerHTML = injectData + bodyDoc.innerHTML;
+//   return new XMLSerializer().serializeToString(doc);
+// };
 
 export const getSkeletonMap = (val) => {
   if (!val || typeof val !== 'string') return '';
 
-  const regExp = new RegExp(`${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[^\\f\\t\\v]*\\})\\s*${SKELETON_MAP_SUFFIX}`);
+  const regExp = new RegExp(`${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`);
 
   let tmp;
   let res = {};
@@ -138,7 +169,7 @@ export const getSkeletonMap = (val) => {
   } catch {
     return {};
   }
-  return res;
+  return res || {};
 };
 
 export const insertSkeleton = (url, skeletonImageBase64, originalSkeletonMap = {}) => {
@@ -153,7 +184,7 @@ export const insertSkeleton = (url, skeletonImageBase64, originalSkeletonMap = {
     [pathname]: skeletonImageBase64,
   }
 
-  const content = `${SKELETON_DIVIDER}\n${template}\n${SKELETON_DIVIDER}`
+  const content = `${SKELETON_DIVIDER}\n${skeletonTemplate}\n${SKELETON_DIVIDER}`
     .replace(/\{\{SKELETON_CLASS\}\}/g, SKELETON_CLASS)
     .replace(/\{\{SKELETON_CONTAINER_CLASS\}\}/g, SKELETON_CONTAINER_CLASS)
     .replace(/\{\{SKELETON_MAP\}\}/g, `${SKELETON_MAP_PREFIX}${JSON.stringify(skeletonMap, null, 2)}\n${SKELETON_MAP_SUFFIX}\n`);

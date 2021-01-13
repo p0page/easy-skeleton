@@ -1,3 +1,4 @@
+import * as clipboard from "clipboard-polyfill/text";
 import {
   sleep,
   hasAttr,
@@ -12,7 +13,6 @@ import {
 import {
   SKELETON_TEXT_CLASS,
 } from './constants';
-import * as clipboard from "clipboard-polyfill/text";
 import * as handler from './handler/index';
 
 const EasySkeleton = {
@@ -134,20 +134,27 @@ const EasySkeleton = {
       removeElement(container);
       this.toggleView(true);
       const imgBase64 = await this.captureScreen();
-      const originalHtml = await this.request({
-        url: window.location.href,
-        responseType: 'text',
-      });
+
+      let originalHtml;
+      try {
+        originalHtml = await this.request({
+          url: window.location.href,
+          responseType: 'text',
+        });
+      } catch(e) {
+        console.error('==genSkeleton Error==\n', e);
+        alert('获取当前网页源码失败，将无法自动获取已经接入的骨架屏信息，请手动进行处理')
+      }
       const injectContent = getSkeletonInjectContent(originalHtml);
       const originalSkeletonMap = getSkeletonMap(injectContent);
-  
       const { html } = insertSkeleton(window.location.hash, imgBase64, originalSkeletonMap);
+
       this.toggleView(false);
       clipboard.writeText(html).then(() => {
-        alert('骨架屏代码已经复制到了你的剪贴板！')
+        alert('骨架屏代码已经复制到了你的剪贴板');
       });
       this.initData();
-    })
+    });
 
     document.documentElement.append(container);
   },
@@ -181,7 +188,7 @@ const EasySkeleton = {
       this.toggleView(true);
       this.handleNode(this.previewNode);
     } catch (e) {
-      console.log('==genSkeleton Error==\n', e.message, e.stack);
+      console.error('==genSkeleton Error==\n', e.message, e.stack);
     }
   },
 
@@ -228,13 +235,6 @@ const EasySkeleton = {
     this.cleanSkeletonContainer();
     handler.style();
   },
-
-  // cleanPreviewContainer() {
-  //   const previewContainer = document.body.querySelector('#skeleton-preview-container');
-  //   if (previewContainer) {
-  //     removeElement(previewContainer);
-  //   }
-  // },
 
   // Remove skeleton image html and style from the page to avoid interference
   cleanSkeletonContainer(node) {

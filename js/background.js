@@ -1,18 +1,6 @@
-const hanldeRequest = ({
-  url,
-  data,
-  method = 'GET',
-  headers = {},
-  responseType = 'json',
-  ...rest
-}) => fetch(url, {
-  ...rest,
-  method,
-  headers: responseType === 'json' ? { 'Content-Type': 'application/json', ...headers } : headers,
-  body: data && JSON.stringify(data),
-}).then(res => ['json', 'text', 'formData', 'blob', 'arrayBuffer'].includes(responseType) ? res[responseType]() : res.text());
+import { request } from './util';
 
-const handleCapture = () => {
+const capture = () => {
   return new Promise(resolve => {
     chrome.tabs.captureVisibleTab(null, {
       format: 'png',
@@ -23,27 +11,14 @@ const handleCapture = () => {
   })
 }
 
-// const handleUpload = ({ img }) => {
-//   if (img) {
-//     return request('http://localhost:9006/upload/skeleton', {
-//       method: 'POST',
-//       data: {
-//         img,
-//       },
-//     });
-//   }
-
-//   return Promise.reject(new Error('缺少参数'));
-// }
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  switch (request.command) {
+chrome.runtime.onMessage.addListener((req, sender, sendRes) => {
+  switch (req.command) {
     case 'CAPTURE':
-      handleCapture().then(sendResponse);
+      capture().then(sendRes);
       return true;
     case 'REQUEST':
-      const { options = {} } = request;
-      hanldeRequest(options || {}).then(sendResponse);
+      const { options = {} } = req;
+      request(options || {}).then(sendRes);
       return true;
     default:
       break;
