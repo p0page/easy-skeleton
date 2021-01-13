@@ -60,7 +60,7 @@
     } catch {
       return {};
     }
-    return res;
+    return res || {};
   };
 
   const queryCurrentTab = () => {
@@ -73,13 +73,13 @@
 
   const sendMessageToContentScript = (message, callback) => {
     queryCurrentTab().then(tab => {
-      chrome.tabs.sendMessage(tab[0].id, message, (response) => {
+      chrome.tabs.sendMessage(tab.id, message, (response) => {
   			if(callback) callback(response);
   		});
     });
   };
 
-  const genSkeletonInfo = async () => {
+  const genSkeletonStatus = async () => {
     const tab = await queryCurrentTab();
     if (tab && tab.url) {
       try {
@@ -88,9 +88,11 @@
           responseType: 'text',
         });
         const injectContent = getSkeletonInjectContent(html);
-        console.log(injectContent);
         const skeletonMap = getSkeletonMap(injectContent);
-        console.log(skeletonMap);
+
+        Object.keys(skeletonMap).map(item => {
+
+        });
       } catch(e) {
         console.log(e);
       }
@@ -98,14 +100,15 @@
   };
 
   document.addEventListener("DOMContentLoaded", () => {
-    genSkeletonInfo();
-
     const genBtn = document.querySelector('#gen-btn');
     if (genBtn) {
       genBtn.addEventListener('click', () => {
         sendMessageToContentScript({ command: 'START', options: {} });
       });
     }
+
+    // 显示目前已接入的骨架屏情况
+    genSkeletonStatus();
   });
 
 }());
