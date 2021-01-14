@@ -989,6 +989,7 @@
             svgHandler(node);
             break;
           case 'INPUT':
+          case 'TEXTAREA':
             inputHandler(node);
             break;
           case 'BUTTON': // Button processing ends once
