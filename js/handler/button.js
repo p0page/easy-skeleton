@@ -3,13 +3,14 @@ import {
   MAIN_COLOR,
 } from '../constants';
 
-function buttonHandler(node) {
+const buttonHandler = (node) => {
   if (!node.tagName) return;
 
   node.classList.add(BUTTON_CLASS);
 
-  let { backgroundColor: bgColor, width, height } = getComputedStyle(node);
+  const { backgroundColor, width, height } = getComputedStyle(node);
 
+  let bgColor = backgroundColor;
   bgColor = bgColor === 'rgba(0, 0, 0, 0)' ? MAIN_COLOR : bgColor;
 
   node.style.backgroundColor = bgColor;
@@ -20,6 +21,6 @@ function buttonHandler(node) {
 
   // Clear button content
   node.innerHTML = '';
-}
+};
 
 export default buttonHandler;

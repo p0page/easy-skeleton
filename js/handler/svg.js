@@ -3,12 +3,13 @@ import {
   removeElement,
 } from '../util';
 
-function svgHandler(node) {
+const svgHandler = (node) => {
   const { width, height } = node.getBoundingClientRect();
 
   // Remove elements if they are not visible
   if (width === 0 || height === 0 || node.getAttribute('aria-hidden') === 'true') {
-    return removeElement(node);
+    removeElement(node);
+    return;
   }
 
   // Clear node centent
@@ -16,9 +17,9 @@ function svgHandler(node) {
 
   // Set style
   Object.assign(node.style, {
-    width: px2rem(parseInt(width)),
-    height: px2rem(parseInt(height)),
+    width: px2rem(parseInt(width, 10)),
+    height: px2rem(parseInt(height, 10)),
   });
-}
+};
 
 export default svgHandler;

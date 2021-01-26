@@ -26,5 +26,5 @@ export default [
       format: 'iife',
     },
     plugins: [htmlReader()],
-  }
+  },
 ];

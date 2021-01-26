@@ -8,30 +8,8 @@ import {
 } from '../constants';
 import handlerButton from './button';
 
-function getTextWidth(ele, style) {
-  const MOCK_TEXT_ID = 'skeleton-text-id';
-  let offScreenParagraph = document.querySelector(`#${MOCK_TEXT_ID}`);
-  if (!offScreenParagraph) {
-    const wrapper = document.createElement('p');
-    offScreenParagraph = document.createElement('span');
-    Object.assign(wrapper.style, {
-      width: '10000px',
-      position: 'absolute',
-      top: '0',
-    });
-    offScreenParagraph.id = MOCK_TEXT_ID;
-    offScreenParagraph.style.visibility = 'hidden';
-    wrapper.appendChild(offScreenParagraph);
-    document.body.appendChild(wrapper);
-  }
-  Object.assign(offScreenParagraph.style, style);
-  ele.childNodes && setStylesInNode(ele.childNodes);
-  offScreenParagraph.innerHTML = ele.innerHTML;
-  return offScreenParagraph.getBoundingClientRect().width;
-}
-
-function setStylesInNode(nodes) {
-  Array.from(nodes).forEach(node => {
+const setStylesInNode = (nodes) => {
+  Array.from(nodes).forEach((node) => {
     if (!node || !node.tagName) return;
     const comStyle = getComputedStyle(node);
     Object.assign(node.style, {
@@ -57,26 +35,47 @@ function setStylesInNode(nodes) {
       setStylesInNode(node.childNodes);
     }
   });
-}
+};
 
-function addTextMask(paragraph, {
+const getTextWidth = (ele, style) => {
+  const MOCK_TEXT_ID = 'skeleton-text-id';
+  let offScreenParagraph = document.querySelector(`#${MOCK_TEXT_ID}`);
+  if (!offScreenParagraph) {
+    const wrapper = document.createElement('p');
+    offScreenParagraph = document.createElement('span');
+    Object.assign(wrapper.style, {
+      width: '10000px',
+      position: 'absolute',
+      top: '0',
+    });
+    offScreenParagraph.id = MOCK_TEXT_ID;
+    offScreenParagraph.style.visibility = 'hidden';
+    wrapper.appendChild(offScreenParagraph);
+    document.body.appendChild(wrapper);
+  }
+  Object.assign(offScreenParagraph.style, style);
+  if (ele.childNodes) setStylesInNode(ele.childNodes);
+  offScreenParagraph.innerHTML = ele.innerHTML;
+  return offScreenParagraph.getBoundingClientRect().width;
+};
+
+const addTextMask = (paragraph, {
   textAlign,
   lineHeight,
   paddingBottom,
   paddingLeft,
   paddingRight,
-}, maskWidthPercent = 0.5) {
-
+}, maskWidthPercent = 0.5) => {
   let left;
   let right;
   switch (textAlign) {
     case 'center':
       left = document.createElement('span');
       right = document.createElement('span');
-      [ left, right ].forEach(mask => {
+      [left, right].forEach((mask) => {
         Object.assign(mask.style, {
           display: 'inline-block',
-          width: `${maskWidthPercent / 2 * 100}%`,
+          width: `${(maskWidthPercent / 2) * 100}%`,
           height: lineHeight,
           background: '#fff',
           position: 'absolute',
@@ -116,12 +115,12 @@ function addTextMask(paragraph, {
       paragraph.appendChild(right);
       break;
   }
-}
+};
 
-function handleTextStyle(ele, width) {
+const handleTextStyle = (ele, width) => {
   const comStyle = getComputedStyle(ele);
-  let {
-    lineHeight,
+  let { lineHeight } = comStyle;
+  const {
     paddingTop,
     paddingRight,
     paddingBottom,
@@ -137,11 +136,12 @@ function handleTextStyle(ele, width) {
     lineHeight = `${fontSizeNum * 1.4}px`;
   }
 
-  const position = [ 'fixed', 'absolute', 'flex' ].find(p => p === pos) ? pos : 'relative';
+  const position = ['fixed', 'absolute', 'flex'].find((p) => p === pos) ? pos : 'relative';
 
   const height = ele.offsetHeight;
   // Round down
-  let lineCount = (height - parseFloat(paddingTop, 10) - parseFloat(paddingBottom, 10)) / parseFloat(lineHeight, 10) || 0;
+  let lineCount = (height - parseFloat(paddingTop, 10) - parseFloat(paddingBottom, 10))
+  / parseFloat(lineHeight, 10) || 0;
 
   lineCount = lineCount < 1.5 ? 1 : lineCount;
 
@@ -152,12 +152,12 @@ function handleTextStyle(ele, width) {
 
   Object.assign(ele.style, {
     backgroundImage: `linear-gradient(
-        transparent ${(1 - textHeightRatio) / 2 * 100}%,
+        transparent ${((1 - textHeightRatio) / 2) * 100}%,
         ${MAIN_COLOR} 0%,
         ${MAIN_COLOR} ${((1 - textHeightRatio) / 2 + textHeightRatio) * 100}%,
         transparent 0%
       )`,
-    backgroundSize: `100% ${px2rem(parseInt(lineHeight) * 1.1)}`,
+    backgroundSize: `100% ${px2rem(parseInt(lineHeight, 10) * 1.1)}`,
     position,
   });
 
@@ -173,7 +173,9 @@ function handleTextStyle(ele, width) {
       wordBreak,
       wordSpacing,
     });
-    const textWidthPercent = textWidth / (width - parseInt(paddingRight, 10) - parseInt(paddingLeft, 10));
+    const textWidthPercent = textWidth
+    / (width - parseInt(paddingRight, 10) - parseInt(paddingLeft, 10));
+
     ele.style.backgroundSize = `${textWidthPercent * 100}% 100%`;
     switch (textAlign) {
       case 'left':
@@ -188,9 +190,9 @@ function handleTextStyle(ele, width) {
         break;
     }
   }
-}
+};
 
-function textHandler(ele, options) {
+const textHandler = (ele, options) => {
   const {
     width,
   } = ele.getBoundingClientRect();
@@ -198,17 +200,19 @@ function textHandler(ele, options) {
   // Elements with a width less than N are not handled
   const minGrayBlockWidth = options.minGrayBlockWidth || 30;
   if (width <= minGrayBlockWidth) {
-    return setOpacity(ele);
+    setOpacity(ele);
+    return;
   }
 
   // If it is a button, it ends early
   const isBtn = /(btn)|(button)/g.test(ele.getAttribute('class'));
   if (isBtn) {
-    return handlerButton(ele);
+    handlerButton(ele);
+    return;
   }
 
   // Handling text styles
   handleTextStyle(ele, width);
-}
+};
 
 export default textHandler;

@@ -1,14 +1,20 @@
-.clip {
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chip {
   border: 1px solid rgba(0, 0, 0, 0.23);
   border-radius: 16px;
   background-color: transparent;
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  height: 24px;
+  height: 22px;
   color: rgba(0, 0, 0, 0.87);
   outline: 0;
-  padding: 0 4px;
+  padding: 0 12px;
   font-size: 12px;
   display: flex;
   align-items: center;
@@ -17,8 +23,23 @@
   white-space: nowrap;
   vertical-align: middle;
   text-decoration: none;
+  margin-top: 6px;
 }
 
-.clip:hover {
+.chip:hover {
   background-color: rgba(0, 0, 0, 0.04);
+}
+
+.chip-container {
+  padding: 10px 0 0 0;
+  margin-top: 10px;
+  border-top: 1px solid rgb(220, 223, 230);
+}
+
+.chip-container-title {
+  text-align: center;
+  font-size: 12px;
+  color: #909399;
+  margin: 0;
+  /* font-weight: 500; */
 }

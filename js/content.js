@@ -1,4 +1,4 @@
-import * as clipboard from "clipboard-polyfill/text";
+import * as clipboard from 'clipboard-polyfill/text';
 import {
   sleep,
   hasAttr,
@@ -33,9 +33,9 @@ const EasySkeleton = {
       const timer = setTimeout(() => {
         reject(new Error('截图超时'));
       }, 5000);
-      
+
       chrome.runtime.sendMessage({
-        command: 'CAPTURE'
+        command: 'CAPTURE',
       }, (res) => {
         clearTimeout(timer);
         resolve(res);
@@ -44,7 +44,7 @@ const EasySkeleton = {
   },
 
   request(options) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       chrome.runtime.sendMessage({
         command: 'REQUEST',
         options,
@@ -80,14 +80,14 @@ const EasySkeleton = {
   toggleView(val) {
     const newVal = val === undefined ? !this.isPreview : !!val;
 
-    if (newVal === this.isPreview) return;
+    if (newVal === this.isPreview) return newVal;
 
     if (newVal) {
       replaceElement(this.originalNode, this.previewNode);
     } else {
       replaceElement(this.previewNode, this.originalNode);
     }
- 
+
     if (this.previewBtn) {
       const iconEle = this.previewBtn.querySelector('.icon-eye');
       if (iconEle) iconEle.className = newVal ? 'icon-eye icon-eye_ban' : 'icon-eye';
@@ -106,10 +106,10 @@ const EasySkeleton = {
     const buttons = Array.from(Array(3)).map(() => createElement('li', {
       class: 'sk-button',
     }));
-
-    this.previewBtn = buttons[0];
-    this.cancelBtn = buttons[1];
-    this.submitBtn = buttons[2];
+    const [previewBtn, cancelBtn, submitBtn] = buttons;
+    this.previewBtn = previewBtn;
+    this.cancelBtn = cancelBtn;
+    this.submitBtn = submitBtn;
 
     this.previewBtn.innerHTML = '<i class="icon-eye icon-eye_ban"><i/></i>';
     this.cancelBtn.innerHTML = '<i class="icon-close"></i>';
@@ -141,9 +141,9 @@ const EasySkeleton = {
           url: window.location.href,
           responseType: 'text',
         });
-      } catch(e) {
+      } catch (e) {
         console.error('==genSkeleton Error==\n', e);
-        alert('获取当前网页源码失败，将无法自动获取已经接入的骨架屏信息，请手动进行处理')
+        alert('获取当前网页源码失败，将无法自动获取已经接入的骨架屏信息，请手动进行处理');
       }
       const injectContent = getSkeletonInjectContent(originalHtml);
       const originalSkeletonMap = getSkeletonMap(injectContent);
@@ -168,8 +168,8 @@ const EasySkeleton = {
       return;
     }
 
-    Array.from(node.childNodes || []).forEach(node => {
-      this.removeScript(node);
+    Array.from(node.childNodes || []).forEach((x) => {
+      this.removeScript(x);
     });
   },
 
@@ -292,7 +292,7 @@ const EasySkeleton = {
   handleImages(nodes) {
     if (!nodes) return;
 
-    Array.from(nodes).forEach(node => {
+    Array.from(nodes).forEach((node) => {
       if (hasAttr(node, 'data-skeleton-ignore')) return;
 
       handler.before(node, this.options);
@@ -312,7 +312,7 @@ const EasySkeleton = {
   handleNodes(nodes) {
     if (!nodes.length) return;
 
-    Array.from(nodes).forEach(node => {
+    Array.from(nodes).forEach((node) => {
       this.handleNode(node);
     });
   },
@@ -323,7 +323,8 @@ const EasySkeleton = {
 
     // Delete elements that are not in first screen, or marked for deletion
     if (!inViewPort(node) || hasAttr(node, 'data-skeleton-remove')) {
-      return removeElement(node);
+      removeElement(node);
+      return;
     }
 
     // Handling elements that are ignored by user tags -> End
@@ -387,8 +388,8 @@ const EasySkeleton = {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.command) {
     case 'START':
-      EasySkeleton.genSkeleton(request.options || {})
-	    sendResponse(true);
+      EasySkeleton.genSkeleton(request.options || {});
+      sendResponse(true);
       break;
     default:
       break;

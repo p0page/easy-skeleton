@@ -54,7 +54,6 @@ function styleHandler() {
 
   //   document.head.append(skeletonButtonCss);
   // }
-  
 }
 
 export default styleHandler;

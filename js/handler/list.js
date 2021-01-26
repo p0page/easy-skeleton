@@ -1,7 +1,6 @@
 import {
   removeElement,
 } from '../util';
-
 import {
   LIST_ITEM_TAG,
 } from '../constants';
@@ -9,15 +8,17 @@ import {
 const listHandler = (node, options) => {
   if (!options.openRepeatList || !node.children.length) return;
 
-  const children = node.children;
-  const len = Array.from(children).filter(child => LIST_ITEM_TAG.indexOf(child.tagName) > -1).length;
+  const { children } = node;
+  const len = Array.from(children)
+    .filter((child) => LIST_ITEM_TAG.indexOf(child.tagName) > -1).length;
 
-  if (len === 0) return false;
+  if (len === 0) return;
 
   const firstChild = children[0];
   // Solve the bug that sometimes the ul element child element is not a specified list element.
   if (LIST_ITEM_TAG.indexOf(firstChild.tagName) === -1) {
-    return listHandler(firstChild, options);
+    listHandler(firstChild, options);
+    return;
   }
 
   // Keep only the first list element
@@ -28,7 +29,7 @@ const listHandler = (node, options) => {
   });
 
   // Set all sibling elements of LI to the same element to ensure that the generated page skeleton is neat
-  for (let i = 1; i < len; i++) {
+  for (let i = 1; i < len; i += 1) {
     node.appendChild(firstChild.cloneNode(true));
   }
 };

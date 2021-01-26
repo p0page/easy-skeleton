@@ -8,17 +8,14 @@ import {
 } from './constants';
 
 // sleep function
-export const sleep = ms => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
+export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Check if the node is in the first screen
-export const inViewPort = ele => {
+export const inViewPort = (ele) => {
   try {
     const rect = ele.getBoundingClientRect();
-    return rect.top < window.innerHeight &&
-      rect.left < window.innerWidth;
-
+    return rect.top < window.innerHeight
+      && rect.left < window.innerWidth;
   } catch (e) {
     return true;
   }
@@ -34,14 +31,14 @@ export const hasAttr = (ele, attr) => {
 };
 
 // Set node transparency
-export const setOpacity = ele => {
+export const setOpacity = (ele) => {
   if (ele.style) {
     ele.style.opacity = 0;
   }
 };
 
 // Unit conversion px -> rem
-export const px2rem = px => {
+export const px2rem = (px) => {
   const pxValue = typeof px === 'string' ? parseInt(px, 10) : px;
   const htmlElementFontSize = getComputedStyle(document.documentElement).fontSize;
 
@@ -50,11 +47,11 @@ export const px2rem = px => {
 
 // Batch setting element properties
 export const setAttributes = (ele, attrs) => {
-  Object.keys(attrs).forEach(k => ele.setAttribute(k, attrs[k]));
+  Object.keys(attrs).forEach((k) => ele.setAttribute(k, attrs[k]));
 };
 
 // Delete element
-export const removeElement = ele => {
+export const removeElement = (ele) => {
   if (!ele) return;
 
   const parent = ele.parentNode;
@@ -68,20 +65,20 @@ export const replaceElement = (ele, newEle) => {
 
   const parent = ele.parentNode;
   if (parent) {
-    parent.replaceChild(newEle, ele)
+    parent.replaceChild(newEle, ele);
   }
 };
 
 export const createElement = (tagName, attrs = {}) => {
   const node = document.createElement(tagName);
-  Object.keys(attrs).forEach(key => {
+  Object.keys(attrs).forEach((key) => {
     node.setAttribute(key, attrs[key]);
   });
   return node;
 };
 
 // Check the element pseudo-class to return the corresponding element and width
-export const checkHasPseudoEle = ele => {
+export const checkHasPseudoEle = (ele) => {
   if (!ele) return false;
 
   const beforeComputedStyle = getComputedStyle(ele, '::before');
@@ -97,7 +94,9 @@ export const checkHasPseudoEle = ele => {
   const width = Math.max(beforeWidth, afterWidth);
 
   if (hasBefore || hasAfter) {
-    return { hasBefore, hasAfter, ele, width };
+    return {
+      hasBefore, hasAfter, ele, width,
+    };
   }
   return false;
 };
@@ -114,11 +113,14 @@ export const request = ({
   method,
   headers: { 'Content-Type': 'application/json', ...headers },
   body: data && JSON.stringify(data),
-}).then(res => ['json', 'text', 'formData', 'blob', 'arrayBuffer'].includes(responseType) ? res[responseType]() : res.text());
+}).then((res) => (['json', 'text', 'formData', 'blob', 'arrayBuffer'].includes(responseType)
+  ? res[responseType]()
+  : res.text()));
 
 export const urlParser = (url) => {
-  const pathPattern = /^#?(\/[^\?\s]*)(\?[^\s]*)?$/;
+  const pathPattern = /^#?(\/[^?\s]*)(\?[^\s]*)?$/;
   let tmp;
+  // eslint-disable-next-line no-cond-assign
   if (!url || !(tmp = pathPattern.exec(url))) {
     return {
       pathname: '/',
@@ -145,7 +147,7 @@ export const getSkeletonInjectContent = (val) => {
 //   if (!html || !injectData || typeof html !== 'string') throw new Error('传入参数不合法');
 
 //   html = html.replace(skeletonRegExp, '');
-  
+
 //   const doc = new DOMParser().parseFromString(html, 'text/html');
 //   const bodyDoc = doc.querySelector('body');
 //   console.log(doc);
@@ -159,14 +161,16 @@ export const getSkeletonInjectContent = (val) => {
 export const getSkeletonMap = (val) => {
   if (!val || typeof val !== 'string') return '';
 
-  const regExp = new RegExp(`${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`);
+  const regExp = new RegExp(
+    `${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
+  );
 
-  let tmp;
   let res = {};
 
   try {
-    if (tmp = regExp.exec(val)) res = JSON.parse(tmp[1]);
-  } catch {
+    const tmp = regExp.exec(val);
+    if (tmp) res = JSON.parse(tmp[1]);
+  } catch (e) {
     return {};
   }
   return res || {};
@@ -182,12 +186,15 @@ export const insertSkeleton = (url, skeletonImageBase64, originalSkeletonMap = {
   const skeletonMap = {
     ...originalSkeletonMap,
     [pathname]: skeletonImageBase64,
-  }
+  };
 
   const content = `${SKELETON_DIVIDER}\n${skeletonTemplate}\n${SKELETON_DIVIDER}`
     .replace(/\{\{SKELETON_CLASS\}\}/g, SKELETON_CLASS)
     .replace(/\{\{SKELETON_CONTAINER_CLASS\}\}/g, SKELETON_CONTAINER_CLASS)
-    .replace(/\{\{SKELETON_MAP\}\}/g, `${SKELETON_MAP_PREFIX}${JSON.stringify(skeletonMap, null, 2)}\n${SKELETON_MAP_SUFFIX}\n`);
+    .replace(
+      /\{\{SKELETON_MAP\}\}/g,
+      `${SKELETON_MAP_PREFIX}${JSON.stringify(skeletonMap, null, 2)}\n${SKELETON_MAP_SUFFIX}\n`,
+    );
 
   return {
     html: content,

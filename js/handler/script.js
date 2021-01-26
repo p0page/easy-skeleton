@@ -2,8 +2,8 @@ import {
   removeElement,
 } from '../util';
 
-function scriptHandler(node) {
+const scriptHandler = (node) => {
   removeElement(node);
-}
+};
 
 export default scriptHandler;

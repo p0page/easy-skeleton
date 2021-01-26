@@ -2,15 +2,13 @@ import {
   MAIN_COLOR,
   MAIN_COLOR_RGB,
 } from '../constants';
-
 import {
   hasAttr,
   setOpacity,
 } from '../util';
+import handlerEmpty from './empty';
 
-import handlerEmpty from './empty.js';
-
-function beforeHandler(node, options) {
+const beforeHandler = (node, options) => {
   if (!node.tagName) return;
 
   // Handling empty elements of user tags
@@ -50,6 +48,6 @@ function beforeHandler(node, options) {
     node.style.backgroundColor = bgColor;
     node.style.color = 'transparent';
   }
-}
+};
 
 export default beforeHandler;

@@ -39,26 +39,23 @@
     const SKELETON_TEXT_CLASS = 'skeleton-text-block-mark';
 
     // List item Tag
-    const LIST_ITEM_TAG = [ 'LI', 'DT', 'DD' ];
+    const LIST_ITEM_TAG = ['LI', 'DT', 'DD'];
 
     const SKELETON_DIVIDER = '<!-- SKELETON -->';
     const SKELETON_CLASS = 'skeleton-remove-after-first-request';
     const SKELETON_CONTAINER_CLASS = 'skeleton-container';
     const SKELETON_MAP_PREFIX = `<script class="${SKELETON_CLASS}">\nwindow.__skeletonMap = `;
-    const SKELETON_MAP_SUFFIX = `</script>`;
+    const SKELETON_MAP_SUFFIX = '</script>';
 
     // sleep function
-    const sleep = ms => {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    };
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // Check if the node is in the first screen
-    const inViewPort = ele => {
+    const inViewPort = (ele) => {
       try {
         const rect = ele.getBoundingClientRect();
-        return rect.top < window.innerHeight &&
-          rect.left < window.innerWidth;
-
+        return rect.top < window.innerHeight
+          && rect.left < window.innerWidth;
       } catch (e) {
         return true;
       }
@@ -74,14 +71,14 @@
     };
 
     // Set node transparency
-    const setOpacity = ele => {
+    const setOpacity = (ele) => {
       if (ele.style) {
         ele.style.opacity = 0;
       }
     };
 
     // Unit conversion px -> rem
-    const px2rem = px => {
+    const px2rem = (px) => {
       const pxValue = typeof px === 'string' ? parseInt(px, 10) : px;
       const htmlElementFontSize = getComputedStyle(document.documentElement).fontSize;
 
@@ -90,11 +87,11 @@
 
     // Batch setting element properties
     const setAttributes = (ele, attrs) => {
-      Object.keys(attrs).forEach(k => ele.setAttribute(k, attrs[k]));
+      Object.keys(attrs).forEach((k) => ele.setAttribute(k, attrs[k]));
     };
 
     // Delete element
-    const removeElement = ele => {
+    const removeElement = (ele) => {
       if (!ele) return;
 
       const parent = ele.parentNode;
@@ -114,14 +111,14 @@
 
     const createElement = (tagName, attrs = {}) => {
       const node = document.createElement(tagName);
-      Object.keys(attrs).forEach(key => {
+      Object.keys(attrs).forEach((key) => {
         node.setAttribute(key, attrs[key]);
       });
       return node;
     };
 
     // Check the element pseudo-class to return the corresponding element and width
-    const checkHasPseudoEle = ele => {
+    const checkHasPseudoEle = (ele) => {
       if (!ele) return false;
 
       const beforeComputedStyle = getComputedStyle(ele, '::before');
@@ -137,14 +134,17 @@
       const width = Math.max(beforeWidth, afterWidth);
 
       if (hasBefore || hasAfter) {
-        return { hasBefore, hasAfter, ele, width };
+        return {
+          hasBefore, hasAfter, ele, width,
+        };
       }
       return false;
     };
 
     const urlParser = (url) => {
-      const pathPattern = /^#?(\/[^\?\s]*)(\?[^\s]*)?$/;
+      const pathPattern = /^#?(\/[^?\s]*)(\?[^\s]*)?$/;
       let tmp;
+      // eslint-disable-next-line no-cond-assign
       if (!url || !(tmp = pathPattern.exec(url))) {
         return {
           pathname: '/',
@@ -171,7 +171,7 @@
     //   if (!html || !injectData || typeof html !== 'string') throw new Error('传入参数不合法');
 
     //   html = html.replace(skeletonRegExp, '');
-      
+
     //   const doc = new DOMParser().parseFromString(html, 'text/html');
     //   const bodyDoc = doc.querySelector('body');
     //   console.log(doc);
@@ -185,14 +185,16 @@
     const getSkeletonMap = (val) => {
       if (!val || typeof val !== 'string') return '';
 
-      const regExp = new RegExp(`${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`);
+      const regExp = new RegExp(
+        `${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
+      );
 
-      let tmp;
       let res = {};
 
       try {
-        if (tmp = regExp.exec(val)) res = JSON.parse(tmp[1]);
-      } catch {
+        const tmp = regExp.exec(val);
+        if (tmp) res = JSON.parse(tmp[1]);
+      } catch (e) {
         return {};
       }
       return res || {};
@@ -213,7 +215,10 @@
       const content = `${SKELETON_DIVIDER}\n${skeletonTemplate}\n${SKELETON_DIVIDER}`
         .replace(/\{\{SKELETON_CLASS\}\}/g, SKELETON_CLASS)
         .replace(/\{\{SKELETON_CONTAINER_CLASS\}\}/g, SKELETON_CONTAINER_CLASS)
-        .replace(/\{\{SKELETON_MAP\}\}/g, `${SKELETON_MAP_PREFIX}${JSON.stringify(skeletonMap, null, 2)}\n${SKELETON_MAP_SUFFIX}\n`);
+        .replace(
+          /\{\{SKELETON_MAP\}\}/g,
+          `${SKELETON_MAP_PREFIX}${JSON.stringify(skeletonMap, null, 2)}\n${SKELETON_MAP_SUFFIX}\n`,
+        );
 
       return {
         html: content,
@@ -221,16 +226,17 @@
       };
     };
 
-    function aHandler(node) {
+    const aHandler = (node) => {
       node.removeAttribute('href');
-    }
+    };
 
-    function svgHandler(node) {
+    const svgHandler = (node) => {
       const { width, height } = node.getBoundingClientRect();
 
       // Remove elements if they are not visible
       if (width === 0 || height === 0 || node.getAttribute('aria-hidden') === 'true') {
-        return removeElement(node);
+        removeElement(node);
+        return;
       }
 
       // Clear node centent
@@ -238,12 +244,12 @@
 
       // Set style
       Object.assign(node.style, {
-        width: px2rem(parseInt(width)),
-        height: px2rem(parseInt(height)),
+        width: px2rem(parseInt(width, 10)),
+        height: px2rem(parseInt(height, 10)),
       });
-    }
+    };
 
-    function imgHandler(node) {
+    const imgHandler = (node) => {
       const { width, height } = node.getBoundingClientRect();
 
       setAttributes(node, {
@@ -255,15 +261,16 @@
       node.removeAttribute('srcset');
 
       node.style.backgroundColor = MAIN_COLOR;
-    }
+    };
 
-    function buttonHandler(node) {
+    const buttonHandler = (node) => {
       if (!node.tagName) return;
 
       node.classList.add(BUTTON_CLASS);
 
-      let { backgroundColor: bgColor, width, height } = getComputedStyle(node);
+      const { backgroundColor, width, height } = getComputedStyle(node);
 
+      let bgColor = backgroundColor;
       bgColor = bgColor === 'rgba(0, 0, 0, 0)' ? MAIN_COLOR : bgColor;
 
       node.style.backgroundColor = bgColor;
@@ -274,32 +281,10 @@
 
       // Clear button content
       node.innerHTML = '';
-    }
+    };
 
-    function getTextWidth(ele, style) {
-      const MOCK_TEXT_ID = 'skeleton-text-id';
-      let offScreenParagraph = document.querySelector(`#${MOCK_TEXT_ID}`);
-      if (!offScreenParagraph) {
-        const wrapper = document.createElement('p');
-        offScreenParagraph = document.createElement('span');
-        Object.assign(wrapper.style, {
-          width: '10000px',
-          position: 'absolute',
-          top: '0',
-        });
-        offScreenParagraph.id = MOCK_TEXT_ID;
-        offScreenParagraph.style.visibility = 'hidden';
-        wrapper.appendChild(offScreenParagraph);
-        document.body.appendChild(wrapper);
-      }
-      Object.assign(offScreenParagraph.style, style);
-      ele.childNodes && setStylesInNode(ele.childNodes);
-      offScreenParagraph.innerHTML = ele.innerHTML;
-      return offScreenParagraph.getBoundingClientRect().width;
-    }
-
-    function setStylesInNode(nodes) {
-      Array.from(nodes).forEach(node => {
+    const setStylesInNode = (nodes) => {
+      Array.from(nodes).forEach((node) => {
         if (!node || !node.tagName) return;
         const comStyle = getComputedStyle(node);
         Object.assign(node.style, {
@@ -325,26 +310,47 @@
           setStylesInNode(node.childNodes);
         }
       });
-    }
+    };
 
-    function addTextMask(paragraph, {
+    const getTextWidth = (ele, style) => {
+      const MOCK_TEXT_ID = 'skeleton-text-id';
+      let offScreenParagraph = document.querySelector(`#${MOCK_TEXT_ID}`);
+      if (!offScreenParagraph) {
+        const wrapper = document.createElement('p');
+        offScreenParagraph = document.createElement('span');
+        Object.assign(wrapper.style, {
+          width: '10000px',
+          position: 'absolute',
+          top: '0',
+        });
+        offScreenParagraph.id = MOCK_TEXT_ID;
+        offScreenParagraph.style.visibility = 'hidden';
+        wrapper.appendChild(offScreenParagraph);
+        document.body.appendChild(wrapper);
+      }
+      Object.assign(offScreenParagraph.style, style);
+      if (ele.childNodes) setStylesInNode(ele.childNodes);
+      offScreenParagraph.innerHTML = ele.innerHTML;
+      return offScreenParagraph.getBoundingClientRect().width;
+    };
+
+    const addTextMask = (paragraph, {
       textAlign,
       lineHeight,
       paddingBottom,
       paddingLeft,
       paddingRight,
-    }, maskWidthPercent = 0.5) {
-
+    }, maskWidthPercent = 0.5) => {
       let left;
       let right;
       switch (textAlign) {
         case 'center':
           left = document.createElement('span');
           right = document.createElement('span');
-          [ left, right ].forEach(mask => {
+          [left, right].forEach((mask) => {
             Object.assign(mask.style, {
               display: 'inline-block',
-              width: `${maskWidthPercent / 2 * 100}%`,
+              width: `${(maskWidthPercent / 2) * 100}%`,
               height: lineHeight,
               background: '#fff',
               position: 'absolute',
@@ -384,12 +390,12 @@
           paragraph.appendChild(right);
           break;
       }
-    }
+    };
 
-    function handleTextStyle(ele, width) {
+    const handleTextStyle = (ele, width) => {
       const comStyle = getComputedStyle(ele);
-      let {
-        lineHeight,
+      let { lineHeight } = comStyle;
+      const {
         paddingTop,
         paddingRight,
         paddingBottom,
@@ -405,11 +411,12 @@
         lineHeight = `${fontSizeNum * 1.4}px`;
       }
 
-      const position = [ 'fixed', 'absolute', 'flex' ].find(p => p === pos) ? pos : 'relative';
+      const position = ['fixed', 'absolute', 'flex'].find((p) => p === pos) ? pos : 'relative';
 
       const height = ele.offsetHeight;
       // Round down
-      let lineCount = (height - parseFloat(paddingTop, 10) - parseFloat(paddingBottom, 10)) / parseFloat(lineHeight, 10) || 0;
+      let lineCount = (height - parseFloat(paddingTop, 10) - parseFloat(paddingBottom, 10))
+      / parseFloat(lineHeight, 10) || 0;
 
       lineCount = lineCount < 1.5 ? 1 : lineCount;
 
@@ -420,12 +427,12 @@
 
       Object.assign(ele.style, {
         backgroundImage: `linear-gradient(
-        transparent ${(1 - textHeightRatio) / 2 * 100}%,
+        transparent ${((1 - textHeightRatio) / 2) * 100}%,
         ${MAIN_COLOR} 0%,
         ${MAIN_COLOR} ${((1 - textHeightRatio) / 2 + textHeightRatio) * 100}%,
         transparent 0%
       )`,
-        backgroundSize: `100% ${px2rem(parseInt(lineHeight) * 1.1)}`,
+        backgroundSize: `100% ${px2rem(parseInt(lineHeight, 10) * 1.1)}`,
         position,
       });
 
@@ -441,7 +448,9 @@
           wordBreak,
           wordSpacing,
         });
-        const textWidthPercent = textWidth / (width - parseInt(paddingRight, 10) - parseInt(paddingLeft, 10));
+        const textWidthPercent = textWidth
+        / (width - parseInt(paddingRight, 10) - parseInt(paddingLeft, 10));
+
         ele.style.backgroundSize = `${textWidthPercent * 100}% 100%`;
         switch (textAlign) {
           case 'left':
@@ -454,9 +463,9 @@
             break;
         }
       }
-    }
+    };
 
-    function textHandler(ele, options) {
+    const textHandler = (ele, options) => {
       const {
         width,
       } = ele.getBoundingClientRect();
@@ -464,31 +473,35 @@
       // Elements with a width less than N are not handled
       const minGrayBlockWidth = options.minGrayBlockWidth || 30;
       if (width <= minGrayBlockWidth) {
-        return setOpacity(ele);
+        setOpacity(ele);
+        return;
       }
 
       // If it is a button, it ends early
       const isBtn = /(btn)|(button)/g.test(ele.getAttribute('class'));
       if (isBtn) {
-        return buttonHandler(ele);
+        buttonHandler(ele);
+        return;
       }
 
       // Handling text styles
       handleTextStyle(ele, width);
-    }
+    };
 
     const listHandler = (node, options) => {
       if (!options.openRepeatList || !node.children.length) return;
 
-      const children = node.children;
-      const len = Array.from(children).filter(child => LIST_ITEM_TAG.indexOf(child.tagName) > -1).length;
+      const { children } = node;
+      const len = Array.from(children)
+        .filter((child) => LIST_ITEM_TAG.indexOf(child.tagName) > -1).length;
 
-      if (len === 0) return false;
+      if (len === 0) return;
 
       const firstChild = children[0];
       // Solve the bug that sometimes the ul element child element is not a specified list element.
       if (LIST_ITEM_TAG.indexOf(firstChild.tagName) === -1) {
-        return listHandler(firstChild, options);
+        listHandler(firstChild, options);
+        return;
       }
 
       // Keep only the first list element
@@ -499,26 +512,25 @@
       });
 
       // Set all sibling elements of LI to the same element to ensure that the generated page skeleton is neat
-      for (let i = 1; i < len; i++) {
+      for (let i = 1; i < len; i += 1) {
         node.appendChild(firstChild.cloneNode(true));
       }
     };
 
-    function emptyHandler(node) {
+    const emptyHandler = (node) => {
       node.innerHTML = '';
 
       let classNameArr = node.className && node.className.split(' ');
-      classNameArr = classNameArr.map(item => {
-        return '.' + item;
-      });
+      classNameArr = classNameArr.map((item) => `.${item}`);
       const className = classNameArr.join('');
-      const id = node.id ? '#' + node.id : '';
+      const id = node.id ? `#${node.id}` : '';
       const query = className || id;
 
       if (!query) return;
 
       let styleSheet;
 
+      // eslint-disable-next-line no-restricted-syntax
       for (const item of document.styleSheets) {
         if (!item.href) {
           styleSheet = item;
@@ -527,12 +539,14 @@
       }
 
       try {
-        styleSheet && styleSheet.insertRule(`${query}::before{content:'' !important;background:none !important;}`, 0);
-        styleSheet && styleSheet.insertRule(`${query}::after{content:'' !important;background:none !important;}`, 0);
+        if (styleSheet) {
+          styleSheet.insertRule(`${query}::before{content:'' !important;background:none !important;}`, 0);
+          styleSheet.insertRule(`${query}::after{content:'' !important;background:none !important;}`, 0);
+        }
       } catch (e) {
         console.log('handleEmptyNode Error: ', JSON.stringify(e));
       }
-    }
+    };
 
     function styleHandler() {
       if (!document.head.querySelector('#skeleton-block-style')) {
@@ -582,19 +596,18 @@
 
       //   document.head.append(skeletonButtonCss);
       // }
-      
     }
 
-    function inputHandler(node) {
+    const inputHandler = (node) => {
       node.removeAttribute('placeholder');
       node.value = '';
-    }
+    };
 
-    function scriptHandler(node) {
+    const scriptHandler = (node) => {
       removeElement(node);
-    }
+    };
 
-    function pseudoHandler(node, options) {
+    const pseudoHandler = (node, options) => {
       if (!node.tagName) return;
 
       const pseudo = checkHasPseudoEle(node);
@@ -605,13 +618,14 @@
 
       // Width is less than the hiding threshold
       if (width < options.minGrayPseudoWidth) {
-        return ele.classList.add(TRANSPARENT_CLASS);
+        ele.classList.add(TRANSPARENT_CLASS);
+        return;
       }
 
       ele.classList.add(PSEUDO_CLASS);
-    }
+    };
 
-    function beforeHandler(node, options) {
+    const beforeHandler = (node, options) => {
       if (!node.tagName) return;
 
       // Handling empty elements of user tags
@@ -651,7 +665,7 @@
         node.style.backgroundColor = bgColor;
         node.style.color = 'transparent';
       }
-    }
+    };
 
     const EasySkeleton = {
       initData() {
@@ -671,9 +685,9 @@
           const timer = setTimeout(() => {
             reject(new Error('截图超时'));
           }, 5000);
-          
+
           chrome.runtime.sendMessage({
-            command: 'CAPTURE'
+            command: 'CAPTURE',
           }, (res) => {
             clearTimeout(timer);
             resolve(res);
@@ -682,7 +696,7 @@
       },
 
       request(options) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           chrome.runtime.sendMessage({
             command: 'REQUEST',
             options,
@@ -718,14 +732,14 @@
       toggleView(val) {
         const newVal = val === undefined ? !this.isPreview : !!val;
 
-        if (newVal === this.isPreview) return;
+        if (newVal === this.isPreview) return newVal;
 
         if (newVal) {
           replaceElement(this.originalNode, this.previewNode);
         } else {
           replaceElement(this.previewNode, this.originalNode);
         }
-     
+
         if (this.previewBtn) {
           const iconEle = this.previewBtn.querySelector('.icon-eye');
           if (iconEle) iconEle.className = newVal ? 'icon-eye icon-eye_ban' : 'icon-eye';
@@ -744,10 +758,10 @@
         const buttons = Array.from(Array(3)).map(() => createElement('li', {
           class: 'sk-button',
         }));
-
-        this.previewBtn = buttons[0];
-        this.cancelBtn = buttons[1];
-        this.submitBtn = buttons[2];
+        const [previewBtn, cancelBtn, submitBtn] = buttons;
+        this.previewBtn = previewBtn;
+        this.cancelBtn = cancelBtn;
+        this.submitBtn = submitBtn;
 
         this.previewBtn.innerHTML = '<i class="icon-eye icon-eye_ban"><i/></i>';
         this.cancelBtn.innerHTML = '<i class="icon-close"></i>';
@@ -779,7 +793,7 @@
               url: window.location.href,
               responseType: 'text',
             });
-          } catch(e) {
+          } catch (e) {
             console.error('==genSkeleton Error==\n', e);
             alert('获取当前网页源码失败，将无法自动获取已经接入的骨架屏信息，请手动进行处理');
           }
@@ -806,8 +820,8 @@
           return;
         }
 
-        Array.from(node.childNodes || []).forEach(node => {
-          this.removeScript(node);
+        Array.from(node.childNodes || []).forEach((x) => {
+          this.removeScript(x);
         });
       },
 
@@ -930,7 +944,7 @@
       handleImages(nodes) {
         if (!nodes) return;
 
-        Array.from(nodes).forEach(node => {
+        Array.from(nodes).forEach((node) => {
           if (hasAttr(node, 'data-skeleton-ignore')) return;
 
           beforeHandler(node, this.options);
@@ -950,7 +964,7 @@
       handleNodes(nodes) {
         if (!nodes.length) return;
 
-        Array.from(nodes).forEach(node => {
+        Array.from(nodes).forEach((node) => {
           this.handleNode(node);
         });
       },
@@ -961,7 +975,8 @@
 
         // Delete elements that are not in first screen, or marked for deletion
         if (!inViewPort(node) || hasAttr(node, 'data-skeleton-remove')) {
-          return removeElement(node);
+          removeElement(node);
+          return;
         }
 
         // Handling elements that are ignored by user tags -> End
@@ -1024,7 +1039,7 @@
       switch (request.command) {
         case 'START':
           EasySkeleton.genSkeleton(request.options || {});
-    	    sendResponse(true);
+          sendResponse(true);
           break;
       }
     });

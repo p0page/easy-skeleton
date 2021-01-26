@@ -1,5 +1,5 @@
-function aHandler(node) {
+const aHandler = (node) => {
   node.removeAttribute('href');
-}
+};
 
 export default aHandler;
