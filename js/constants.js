@@ -22,6 +22,13 @@ export const LIST_ITEM_TAG = ['LI', 'DT', 'DD'];
 
 export const SKELETON_DIVIDER = '<!-- SKELETON -->';
 export const SKELETON_CLASS = 'skeleton-remove-after-first-request';
-export const SKELETON_CONTAINER_CLASS = 'skeleton-container';
-export const SKELETON_MAP_PREFIX = `<script class="${SKELETON_CLASS}">\nwindow.__skeletonMap = `;
+export const SKELETON_MAP_CLASS = 'skeleton-map-remove-after-first-request';
+export const SKELETON_CONTAINER_CLASS = 'skeleton-container-remove-after-first-request';
+export const SKELETON_MAP_PREFIX = `<script class="${SKELETON_CLASS} ${SKELETON_MAP_CLASS}">\nwindow.__skeletonMap = `;
 export const SKELETON_MAP_SUFFIX = '</script>';
+
+export const SKELETON_REGEXP = new RegExp(`${SKELETON_DIVIDER}([\\s\\S]*)${SKELETON_DIVIDER}`);
+
+export const SKELETON_MAP_REGEXP = new RegExp(
+  `<script class="?${SKELETON_CLASS}\\s*?(?:${SKELETON_MAP_CLASS})?"?>([\\s\\S]*?window.__skeletonMap\\s*?=[\\s\\S]*?)${SKELETON_MAP_SUFFIX}`,
+);

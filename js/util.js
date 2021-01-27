@@ -5,6 +5,8 @@ import {
   SKELETON_CONTAINER_CLASS,
   SKELETON_MAP_PREFIX,
   SKELETON_MAP_SUFFIX,
+  SKELETON_REGEXP,
+  SKELETON_MAP_REGEXP,
 } from './constants';
 
 // sleep function
@@ -133,12 +135,10 @@ export const urlParser = (url) => {
   };
 };
 
-export const skeletonRegExp = new RegExp(`${SKELETON_DIVIDER}([\\s\\S]*)${SKELETON_DIVIDER}`);
-
 export const getSkeletonInjectContent = (val) => {
   if (!val || typeof val !== 'string') return '';
 
-  const tmp = skeletonRegExp.exec(val);
+  const tmp = SKELETON_REGEXP.exec(val);
 
   return tmp ? tmp[1] : '';
 };
@@ -167,13 +167,10 @@ export const compileCode = (code = '') => {
     },
   });
 
-  // eslint-disable-next-line no-new-func
-  return new Function('sandbox', `with (sandbox) {return (${code})}`)(sandbox);
+  return new Function(
+    'sandbox', `with (sandbox) {const window={__skeletonMap:{}};${code};return window.__skeletonMap;}`,
+  )(sandbox);
 };
-
-export const skeletonMapRegExp = new RegExp(
-  `${SKELETON_MAP_PREFIX.replace(/\s/g, '\\s*').replace(/"/g, '"?')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
-);
 
 export const getSkeletonMap = (val) => {
   if (!val || typeof val !== 'string') return '';
@@ -181,7 +178,7 @@ export const getSkeletonMap = (val) => {
   let res = {};
 
   try {
-    const tmp = skeletonMapRegExp.exec(val);
+    const tmp = SKELETON_MAP_REGEXP.exec(val);
     if (tmp) res = compileCode(tmp[1]);
   } catch (e) {
     return {};

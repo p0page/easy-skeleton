@@ -1,11 +1,6 @@
 (function () {
   'use strict';
 
-  // Skeleton main color
-  const SKELETON_CLASS = 'skeleton-remove-after-first-request';
-  const SKELETON_MAP_PREFIX = `<script class="${SKELETON_CLASS}">\nwindow.__skeletonMap = `;
-  const SKELETON_MAP_SUFFIX = '</script>';
-
   const request = ({
     url,
     data,
@@ -21,10 +16,6 @@
   }).then((res) => (['json', 'text', 'formData', 'blob', 'arrayBuffer'].includes(responseType)
     ? res[responseType]()
     : res.text()));
-
-  const skeletonMapRegExp = new RegExp(
-    `${SKELETON_MAP_PREFIX.replace(/\s/g, '\\s*').replace(/"/g, '"?')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
-  );
 
   const capture = () => new Promise((resolve) => {
     chrome.tabs.captureVisibleTab(null, {

@@ -3,8 +3,12 @@
 
   // Skeleton main color
   const SKELETON_CLASS = 'skeleton-remove-after-first-request';
-  const SKELETON_MAP_PREFIX = `<script class="${SKELETON_CLASS}">\nwindow.__skeletonMap = `;
+  const SKELETON_MAP_CLASS = 'skeleton-map-remove-after-first-request';
   const SKELETON_MAP_SUFFIX = '</script>';
+
+  const SKELETON_MAP_REGEXP = new RegExp(
+    `<script class="?${SKELETON_CLASS}\\s*?(?:${SKELETON_MAP_CLASS})?"?>([\\s\\S]*?window.__skeletonMap\\s*?=[\\s\\S]*?)${SKELETON_MAP_SUFFIX}`,
+  );
 
   const request = ({
     url,
@@ -46,13 +50,10 @@
       },
     });
 
-    // eslint-disable-next-line no-new-func
-    return new Function('sandbox', `with (sandbox) {return (${code})}`)(sandbox);
+    return new Function(
+      'sandbox', `with (sandbox) {const window={__skeletonMap:{}};${code};return window.__skeletonMap;}`,
+    )(sandbox);
   };
-
-  const skeletonMapRegExp = new RegExp(
-    `${SKELETON_MAP_PREFIX.replace(/\s/g, '\\s*').replace(/"/g, '"?')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
-  );
 
   const getSkeletonMap = (val) => {
     if (!val || typeof val !== 'string') return '';
@@ -60,7 +61,7 @@
     let res = {};
 
     try {
-      const tmp = skeletonMapRegExp.exec(val);
+      const tmp = SKELETON_MAP_REGEXP.exec(val);
       if (tmp) res = compileCode(tmp[1]);
     } catch (e) {
       return {};
