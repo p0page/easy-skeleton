@@ -1,6 +1,5 @@
 import {
   request,
-  getSkeletonInjectContent,
   getSkeletonMap,
 } from './util';
 
@@ -26,8 +25,7 @@ const genSkeletonStatus = async () => {
         url: tab.url,
         responseType: 'text',
       });
-      const injectContent = getSkeletonInjectContent(html);
-      const skeletonMap = getSkeletonMap(injectContent);
+      const skeletonMap = getSkeletonMap(html);
 
       const chipList = Object.keys(skeletonMap).map((hash) => {
         const chip = document.createElement('div');
@@ -46,7 +44,6 @@ const genSkeletonStatus = async () => {
         chipList.forEach((chip) => {
           chipContainerEle.appendChild(chip);
         });
-        // console.log(chipContainerEle);
         document.body.appendChild(chipContainerEle);
       }
     } catch (e) {

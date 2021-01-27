@@ -158,18 +158,31 @@ export const getSkeletonInjectContent = (val) => {
 //   return new XMLSerializer().serializeToString(doc);
 // };
 
+export const compileCode = (code = '') => {
+  if (typeof code !== 'string') return undefined;
+
+  const sandbox = new Proxy({}, {
+    has() {
+      return true; // 欺骗，告知属性存在
+    },
+  });
+
+  // eslint-disable-next-line no-new-func
+  return new Function('sandbox', `with (sandbox) {return (${code})}`)(sandbox);
+};
+
+export const skeletonMapRegExp = new RegExp(
+  `${SKELETON_MAP_PREFIX.replace(/\s/g, '\\s*').replace(/"/g, '"?')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
+);
+
 export const getSkeletonMap = (val) => {
   if (!val || typeof val !== 'string') return '';
-
-  const regExp = new RegExp(
-    `${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
-  );
 
   let res = {};
 
   try {
-    const tmp = regExp.exec(val);
-    if (tmp) res = JSON.parse(tmp[1]);
+    const tmp = skeletonMapRegExp.exec(val);
+    if (tmp) res = compileCode(tmp[1]);
   } catch (e) {
     return {};
   }

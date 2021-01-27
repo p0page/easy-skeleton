@@ -2,8 +2,6 @@
   'use strict';
 
   // Skeleton main color
-
-  const SKELETON_DIVIDER = '<!-- SKELETON -->';
   const SKELETON_CLASS = 'skeleton-remove-after-first-request';
   const SKELETON_MAP_PREFIX = `<script class="${SKELETON_CLASS}">\nwindow.__skeletonMap = `;
   const SKELETON_MAP_SUFFIX = '</script>';
@@ -24,16 +22,6 @@
     ? res[responseType]()
     : res.text()));
 
-  const skeletonRegExp = new RegExp(`${SKELETON_DIVIDER}([\\s\\S]*)${SKELETON_DIVIDER}`);
-
-  const getSkeletonInjectContent = (val) => {
-    if (!val || typeof val !== 'string') return '';
-
-    const tmp = skeletonRegExp.exec(val);
-
-    return tmp ? tmp[1] : '';
-  };
-
   // export const injectContentToBody = (html, injectData) => {
   //   if (!html || !injectData || typeof html !== 'string') throw new Error('传入参数不合法');
 
@@ -49,18 +37,31 @@
   //   return new XMLSerializer().serializeToString(doc);
   // };
 
+  const compileCode = (code = '') => {
+    if (typeof code !== 'string') return undefined;
+
+    const sandbox = new Proxy({}, {
+      has() {
+        return true; // 欺骗，告知属性存在
+      },
+    });
+
+    // eslint-disable-next-line no-new-func
+    return new Function('sandbox', `with (sandbox) {return (${code})}`)(sandbox);
+  };
+
+  const skeletonMapRegExp = new RegExp(
+    `${SKELETON_MAP_PREFIX.replace(/\s/g, '\\s*').replace(/"/g, '"?')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
+  );
+
   const getSkeletonMap = (val) => {
     if (!val || typeof val !== 'string') return '';
-
-    const regExp = new RegExp(
-      `${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
-    );
 
     let res = {};
 
     try {
-      const tmp = regExp.exec(val);
-      if (tmp) res = JSON.parse(tmp[1]);
+      const tmp = skeletonMapRegExp.exec(val);
+      if (tmp) res = compileCode(tmp[1]);
     } catch (e) {
       return {};
     }
@@ -89,8 +90,7 @@
           url: tab.url,
           responseType: 'text',
         });
-        const injectContent = getSkeletonInjectContent(html);
-        const skeletonMap = getSkeletonMap(injectContent);
+        const skeletonMap = getSkeletonMap(html);
 
         const chipList = Object.keys(skeletonMap).map((hash) => {
           const chip = document.createElement('div');
@@ -101,7 +101,6 @@
           return chip;
         });
 
-        console.log(chipList);
         if (chipList.length) {
           // const chipContainerEle = new DOMParser().parseFromString(chipContainer, 'text/html');
           const chipContainerEle = document.createElement('div');
@@ -110,7 +109,6 @@
           chipList.forEach((chip) => {
             chipContainerEle.appendChild(chip);
           });
-          // console.log(chipContainerEle);
           document.body.appendChild(chipContainerEle);
         }
       } catch (e) {

@@ -7,7 +7,7 @@ import {
   createElement,
   replaceElement,
   insertSkeleton,
-  getSkeletonInjectContent,
+  // getSkeletonInjectContent,
   getSkeletonMap,
 } from './util';
 import {
@@ -145,8 +145,8 @@ const EasySkeleton = {
         console.error('==genSkeleton Error==\n', e);
         alert('获取当前网页源码失败，将无法自动获取已经接入的骨架屏信息，请手动进行处理');
       }
-      const injectContent = getSkeletonInjectContent(originalHtml);
-      const originalSkeletonMap = getSkeletonMap(injectContent);
+      // const injectContent = getSkeletonInjectContent(originalHtml);
+      const originalSkeletonMap = getSkeletonMap(originalHtml);
       const { html } = insertSkeleton(window.location.hash, imgBase64, originalSkeletonMap);
 
       this.toggleView(false);

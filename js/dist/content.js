@@ -157,16 +157,6 @@
       };
     };
 
-    const skeletonRegExp = new RegExp(`${SKELETON_DIVIDER}([\\s\\S]*)${SKELETON_DIVIDER}`);
-
-    const getSkeletonInjectContent = (val) => {
-      if (!val || typeof val !== 'string') return '';
-
-      const tmp = skeletonRegExp.exec(val);
-
-      return tmp ? tmp[1] : '';
-    };
-
     // export const injectContentToBody = (html, injectData) => {
     //   if (!html || !injectData || typeof html !== 'string') throw new Error('传入参数不合法');
 
@@ -182,18 +172,31 @@
     //   return new XMLSerializer().serializeToString(doc);
     // };
 
+    const compileCode = (code = '') => {
+      if (typeof code !== 'string') return undefined;
+
+      const sandbox = new Proxy({}, {
+        has() {
+          return true; // 欺骗，告知属性存在
+        },
+      });
+
+      // eslint-disable-next-line no-new-func
+      return new Function('sandbox', `with (sandbox) {return (${code})}`)(sandbox);
+    };
+
+    const skeletonMapRegExp = new RegExp(
+      `${SKELETON_MAP_PREFIX.replace(/\s/g, '\\s*').replace(/"/g, '"?')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
+    );
+
     const getSkeletonMap = (val) => {
       if (!val || typeof val !== 'string') return '';
-
-      const regExp = new RegExp(
-        `${SKELETON_MAP_PREFIX.replace('\n', '\\s*')}\\s*(\\{[\\s\\S]*\\})\\s*${SKELETON_MAP_SUFFIX}`,
-      );
 
       let res = {};
 
       try {
-        const tmp = regExp.exec(val);
-        if (tmp) res = JSON.parse(tmp[1]);
+        const tmp = skeletonMapRegExp.exec(val);
+        if (tmp) res = compileCode(tmp[1]);
       } catch (e) {
         return {};
       }
@@ -797,8 +800,8 @@
             console.error('==genSkeleton Error==\n', e);
             alert('获取当前网页源码失败，将无法自动获取已经接入的骨架屏信息，请手动进行处理');
           }
-          const injectContent = getSkeletonInjectContent(originalHtml);
-          const originalSkeletonMap = getSkeletonMap(injectContent);
+          // const injectContent = getSkeletonInjectContent(originalHtml);
+          const originalSkeletonMap = getSkeletonMap(originalHtml);
           const { html } = insertSkeleton(window.location.hash, imgBase64, originalSkeletonMap);
 
           this.toggleView(false);
