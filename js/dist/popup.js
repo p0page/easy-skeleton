@@ -7,7 +7,7 @@
   const SKELETON_MAP_SUFFIX = '</script>';
 
   const SKELETON_MAP_REGEXP = new RegExp(
-    `<script class="?${SKELETON_CLASS}\\s*?(?:${SKELETON_MAP_CLASS})?"?>([\\s\\S]*?window.__skeletonMap\\s*?=[\\s\\S]*?)${SKELETON_MAP_SUFFIX}`,
+    `<script class="?${SKELETON_CLASS}\\s*(?:${SKELETON_MAP_CLASS})?"?>([\\s\\S]*?window.__skeletonMap\\s*=[\\s\\S]*?)${SKELETON_MAP_SUFFIX}`,
   );
 
   const request = ({

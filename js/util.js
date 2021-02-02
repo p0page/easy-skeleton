@@ -119,6 +119,29 @@ export const request = ({
   ? res[responseType]()
   : res.text()));
 
+export const decode = (str) => {
+  const strWithoutPlus = str.replace(/\+/g, ' ');
+  try {
+    return decodeURIComponent(strWithoutPlus);
+  } catch (e) {
+    return strWithoutPlus;
+  }
+};
+
+export const parseSearch = (search) => {
+  if (!search || typeof search !== 'string') return {};
+  const parts = search.replace(/^\?/, '').split('&');
+  return parts.reduce((res, part) => {
+    const pos = part.indexOf('=');
+    if (pos === -1) {
+      res[decode(part)] = '';
+    } else {
+      res[decode(part.slice(0, pos))] = decode(part.slice(pos + 1));
+    }
+    return res;
+  }, {});
+};
+
 export const urlParser = (url) => {
   const pathPattern = /^#?(\/[^?\s]*)(\?[^\s]*)?$/;
   let tmp;
@@ -126,12 +149,12 @@ export const urlParser = (url) => {
   if (!url || !(tmp = pathPattern.exec(url))) {
     return {
       pathname: '/',
-      search: '',
+      query: {},
     };
   }
   return {
     pathname: tmp[1],
-    search: tmp[2] || '',
+    query: parseSearch(tmp[2]),
   };
 };
 

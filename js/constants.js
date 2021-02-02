@@ -30,5 +30,5 @@ export const SKELETON_MAP_SUFFIX = '</script>';
 export const SKELETON_REGEXP = new RegExp(`${SKELETON_DIVIDER}([\\s\\S]*)${SKELETON_DIVIDER}`);
 
 export const SKELETON_MAP_REGEXP = new RegExp(
-  `<script class="?${SKELETON_CLASS}\\s*?(?:${SKELETON_MAP_CLASS})?"?>([\\s\\S]*?window.__skeletonMap\\s*?=[\\s\\S]*?)${SKELETON_MAP_SUFFIX}`,
+  `<script class="?${SKELETON_CLASS}\\s*(?:${SKELETON_MAP_CLASS})?"?>([\\s\\S]*?window.__skeletonMap\\s*=[\\s\\S]*?)${SKELETON_MAP_SUFFIX}`,
 );
