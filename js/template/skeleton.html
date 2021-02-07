@@ -87,11 +87,13 @@
         var pathname = urlObj.pathname;
         var query = urlObj.query;
         window.__removeSkeleton = function() {
-          setTimeout(function(){
+          setTimeout(function() {
             var removes = document.body.getElementsByClassName('{{SKELETON_CLASS}}');
-            removes && Array.prototype.map.call(removes, function(v) { return v; }).forEach(function(item) {
-              document.body.removeChild(item);
-            });
+            if (removes) {
+              for (var i = 0; i < removes.length; i++) {
+                document.body.removeChild(removes[i])
+              }
+            }
           }, 0);
         };
 
@@ -103,7 +105,6 @@
             return true;
           }
         }) || window.__removeSkeleton();
-        
       } catch (e) {
         console.error(e);
       }

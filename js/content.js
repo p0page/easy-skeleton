@@ -133,6 +133,7 @@ const EasySkeleton = {
     this.submitBtn.addEventListener('click', async () => {
       removeElement(container);
       this.toggleView(true);
+      await sleep(500);
       const imgBase64 = await this.captureScreen();
 
       let originalHtml;
