@@ -90,7 +90,7 @@
           setTimeout(function() {
             var removes = document.body.getElementsByClassName('{{SKELETON_CLASS}}');
             if (removes) {
-              for (var i = 0; i < removes.length; i++) {
+              for (var i = removes.length - 1; i >= 0; i--) {
                 document.body.removeChild(removes[i])
               }
             }
